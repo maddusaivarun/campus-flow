@@ -1,0 +1,6 @@
+{
+  "name": "CAMPUSFLOW",
+  "description": "Statutory university event lifecycle platform for Vignan University Department of CSBS & IoT: HOD bulk approval queue, custom venue event charters, dynamic calendar, student admit slips, and AI virtual assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

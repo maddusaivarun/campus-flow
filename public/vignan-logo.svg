@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" width="100%" height="100%">
+  <!-- Clean white background card -->
+  <rect width="540" height="120" fill="#FFFFFF" />
+
+  <!-- Left Shield Crest -->
+  <g transform="translate(12, 10)">
+    <!-- Shield Outer Boundary -->
+    <path d="M 12 10 L 84 10 Q 88 10 88 14 L 88 48 C 88 78, 54 94, 48 98 C 42 94, 8 78, 8 48 L 8 14 Q 8 10 12 10 Z" 
+          fill="#A8B4FC" stroke="#5B67EC" stroke-width="4" stroke-linejoin="round" />
+
+    <!-- Inner Shield Rim -->
+    <path d="M 16 14 L 80 14 C 80 46, 75 74, 48 92 C 21 74, 16 46, 16 14 Z" 
+          fill="#B5C0FE" />
+
+    <!-- Central Emblem / Wheel -->
+    <g transform="translate(48, 46)">
+      <!-- Outer Blue Wheel Ring -->
+      <circle cx="0" cy="0" r="24" fill="none" stroke="#0263C7" stroke-width="4.5" />
+
+      <!-- 5 Spokes radiating out to the wheel ring -->
+      <!-- Spoke 1: Top-Left (-126 deg) -->
+      <line x1="0" y1="0" x2="-14.1" y2="-19.4" stroke="#0263C7" stroke-width="4.5" stroke-linecap="round" />
+      <!-- Spoke 2: Top-Right (-54 deg) -->
+      <line x1="0" y1="0" x2="14.1" y2="-19.4" stroke="#0263C7" stroke-width="4.5" stroke-linecap="round" />
+      <!-- Spoke 3: Straight Down (90 deg) -->
+      <line x1="0" y1="0" x2="0" y2="24" stroke="#0263C7" stroke-width="4.5" stroke-linecap="round" />
+      <!-- Spoke 4: Down-Left (162 deg) -->
+      <line x1="0" y1="0" x2="-22.8" y2="7.4" stroke="#0263C7" stroke-width="4.5" stroke-linecap="round" />
+      <!-- Spoke 5: Down-Right (18 deg) -->
+      <line x1="0" y1="0" x2="22.8" y2="7.4" stroke="#0263C7" stroke-width="4.5" stroke-linecap="round" />
+
+      <!-- Center Blue Hub Disk -->
+      <circle cx="0" cy="0" r="10" fill="#0263C7" />
+
+      <!-- White 5-pointed Star inside Center Disk -->
+      <polygon points="0,-6.5 1.9,-2 6.5,-1.4 3.1,1.8 4,6.4 0,4.1 -4,6.4 -3.1,1.8 -6.5,-1.4 -1.9,-2" fill="#FFFFFF" />
+    </g>
+  </g>
+
+  <!-- Typography Right Section -->
+  <g transform="translate(112, 10)">
+    <!-- Primary Title: VIGNAN'S -->
+    <text x="0" y="46" 
+          font-family="Arial, 'Helvetica Neue', Helvetica, 'Segoe UI', sans-serif" 
+          font-weight="900" 
+          font-size="48" 
+          fill="#EB1C24" 
+          letter-spacing="0.2px">VIGNAN'S</text>
+
+    <!-- Subtitle: FOUNDATION FOR SCIENCE, TECHNOLOGY & RESEARCH -->
+    <text x="0" y="68" 
+          font-family="Arial, 'Helvetica Neue', Helvetica, 'Segoe UI', sans-serif" 
+          font-weight="800" 
+          font-size="12" 
+          fill="#111827" 
+          letter-spacing="0.3px">FOUNDATION FOR SCIENCE, TECHNOLOGY &amp; RESEARCH</text>
+
+    <!-- Blue Banner Bar -->
+    <rect x="0" y="78" width="416" height="24" rx="1" fill="#007FE8" />
+    
+    <!-- White Text inside Blue Banner -->
+    <text x="208" y="94.5" 
+          font-family="Arial, 'Helvetica Neue', Helvetica, 'Segoe UI', sans-serif" 
+          font-weight="700" 
+          font-size="11.5" 
+          fill="#FFFFFF" 
+          text-anchor="middle" 
+          letter-spacing="0.2px">(Deemed to be University) - Estd. u/s 3 of UGC Act 1956</text>
+  </g>
+</svg>
+
