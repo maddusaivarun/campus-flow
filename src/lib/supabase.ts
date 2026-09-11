@@ -141,6 +141,7 @@ export async function supabaseSyncEvent(event: DepartmentEvent, actorRole?: stri
   try {
     const payload = {
       id: event.id,
+      organizer_id: event.organizerId || 'user-faculty-01',
       title: event.title,
       slug: event.id.toLowerCase(),
       short_description: event.shortDescription || event.title,
@@ -152,7 +153,10 @@ export async function supabaseSyncEvent(event: DepartmentEvent, actorRole?: stri
       end_time: event.endTime,
       venue: event.venue,
       location_details: event.locationDetails || '',
+      poster_url: event.posterUrl || '',
       capacity: event.capacity || 100,
+      registered_count: event.registeredCount ?? 0,
+      attendance_count: event.attendanceCount ?? 0,
       registration_deadline: event.registrationDeadline || event.date,
       eligibility: event.eligibility || 'Open to all students',
       requirements: JSON.stringify(event.requirements || {}),
@@ -164,7 +168,7 @@ export async function supabaseSyncEvent(event: DepartmentEvent, actorRole?: stri
       syllabus_mapping: event.syllabusMapping || '',
       hod_review_comment: event.hodReviewComment || null,
       digital_signature_hash: event.digitalSignatureHash || null,
-      department_name: event.departmentName || 'Department of CSBS & IoT',
+      department_name: event.departmentName || 'Department of Computer Science & Engineering',
       updated_at: new Date().toISOString(),
       ...(event.publishedAt ? { published_at: event.publishedAt } : {})
     };
@@ -249,15 +253,25 @@ export async function supabaseSyncRegistration(registration: RegistrationRecord)
   if (!supabase) return false;
 
   try {
+    const dbStatus = registration.checkedIn
+      ? 'CHECKED_IN'
+      : registration.status === 'CANCELLED'
+      ? 'CANCELLED'
+      : 'CONFIRMED';
+
     const { error } = await supabase.from('event_registrations').upsert(
       {
         id: registration.id,
         event_id: registration.eventId,
         student_id: registration.studentId,
         registration_id: registration.registrationId,
+        student_name: registration.studentName,
+        student_roll: registration.studentRoll,
+        student_email: registration.studentEmail,
+        student_department: registration.studentDepartment,
         seat_zone: registration.seatZone || 'General Admission Zone A',
         qr_code_data: registration.qrToken || registration.registrationId,
-        registration_status: registration.status,
+        registration_status: dbStatus,
         registered_at: registration.registeredAt,
         checked_in_at: registration.checkedInAt || null
       },
@@ -270,7 +284,7 @@ export async function supabaseSyncRegistration(registration: RegistrationRecord)
     }
 
     console.log(
-      `[Supabase] Participant registration ${registration.registrationId} synced to Supabase (Status: ${registration.status})`
+      `[Supabase] Participant registration ${registration.registrationId} synced to Supabase (Status: ${dbStatus})`
     );
     return true;
   } catch (err: any) {
@@ -282,7 +296,7 @@ export async function supabaseSyncRegistration(registration: RegistrationRecord)
 /**
  * CRUD: Participant Management - Cancel registration in Supabase
  */
-export async function supabaseCancelRegistration(eventId: string, studentId: string): Promise<boolean> {
+export async function supabaseCancelRegistration(eventId: string, targetIdentifier: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return false;
 
@@ -290,8 +304,8 @@ export async function supabaseCancelRegistration(eventId: string, studentId: str
     const { error } = await supabase
       .from('event_registrations')
       .update({ registration_status: 'CANCELLED' })
-      .eq('event_id', eventId)
-      .eq('student_id', studentId);
+      .or(`student_id.eq.${targetIdentifier},registration_id.eq.${targetIdentifier},id.eq.${targetIdentifier}`)
+      .eq('event_id', eventId);
 
     if (error) {
       console.warn('[Supabase] Note on registration cancel:', error.message);
@@ -320,7 +334,7 @@ export async function supabaseCheckInParticipant(registrationId: string): Promis
         registration_status: 'CHECKED_IN',
         checked_in_at: new Date().toISOString()
       })
-      .eq('registration_id', registrationId);
+      .or(`registration_id.eq.${registrationId},id.eq.${registrationId}`);
 
     if (error) {
       console.warn('[Supabase] Note on check-in update:', error.message);
@@ -331,6 +345,48 @@ export async function supabaseCheckInParticipant(registrationId: string): Promis
     return true;
   } catch (err: any) {
     console.warn('[Supabase] Check-in error:', err.message);
+    return false;
+  }
+}
+
+/**
+ * CRUD: Post-Event Feedback - Sync feedback record to Supabase `feedbacks` table
+ */
+export async function supabaseSyncFeedback(feedback: any): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return false;
+
+  try {
+    const { error } = await supabase.from('feedbacks').upsert(
+      {
+        id: feedback.id,
+        event_id: feedback.eventId,
+        event_title: feedback.eventTitle,
+        student_id: feedback.studentId,
+        student_name: feedback.studentName,
+        student_roll: feedback.studentRoll,
+        student_department: feedback.studentDepartment || 'Department of Computer Science & Engineering',
+        rating: feedback.rating,
+        content_quality: feedback.contentQuality || feedback.rating,
+        organization: feedback.organization || feedback.rating,
+        speaker_rating: feedback.speakerRating || feedback.rating,
+        comment: feedback.comment || '',
+        takeaways: feedback.takeaways || '',
+        would_recommend: feedback.wouldRecommend !== false,
+        created_at: feedback.createdAt || new Date().toISOString()
+      },
+      { onConflict: 'id' }
+    );
+
+    if (error) {
+      console.warn('[Supabase] Note on feedbacks upsert:', error.message);
+      return false;
+    }
+
+    console.log(`[Supabase] Feedback ${feedback.id} synced to Supabase`);
+    return true;
+  } catch (err: any) {
+    console.warn('[Supabase] Sync feedback error:', err.message);
     return false;
   }
 }
@@ -349,7 +405,7 @@ export async function supabaseSyncProfile(user: UserProfile): Promise<boolean> {
         full_name: user.name,
         email: user.email,
         role: user.role,
-        department_name: user.departmentName || 'Department of CSBS & IoT',
+        department_name: user.departmentName || 'Department of Computer Science & Engineering',
         identifier: user.identifier || '',
         phone: user.phone || '',
         avatar_url: user.avatarUrl || '',

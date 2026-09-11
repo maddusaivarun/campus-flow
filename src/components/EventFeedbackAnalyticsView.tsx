@@ -37,7 +37,7 @@ export const EventFeedbackAnalyticsView: React.FC<EventFeedbackAnalyticsViewProp
   const fetchMetrics = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('campusflow_auth_token');
+      const token = localStorage.getItem('campusflow_token') || localStorage.getItem('campusflow_auth_token');
       const res = await fetch('/api/faculty/feedback-summary', {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });

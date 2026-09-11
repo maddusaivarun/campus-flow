@@ -1,4 +1,4 @@
-import { DepartmentEvent, UserProfile, ApprovalTimelineRecord, RegistrationRecord, SystemNotification, AuditLogEntry } from '../types';
+import { DepartmentEvent, UserProfile, ApprovalTimelineRecord, RegistrationRecord, SystemNotification, AuditLogEntry, FeedbackRecord } from '../types';
 
 export const DEMO_USERS: Record<string, UserProfile> = {
   faculty: {
@@ -637,9 +637,9 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     eventDate: '2026-09-18',
     eventVenue: 'Turing Auditorium (Gate 1 & 2 Main)',
     studentId: 'user-student-01',
-    studentName: 'Alex Morgan',
-    studentRoll: 'CS-22-094',
-    studentEmail: 'student@campusflow.demo',
+    studentName: 'Varun Maddu',
+    studentRoll: '221FA04001',
+    studentEmail: 'student.varun@vignan.ac.in',
     studentDepartment: 'Department of CSBS & IoT',
     registrationId: 'PASS-2026-8841-ALX',
     registeredAt: '2026-09-08T09:12:00Z',
@@ -655,9 +655,9 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     eventDate: '2026-09-20',
     eventVenue: 'Networking Lab 4',
     studentId: 'user-student-01',
-    studentName: 'Alex Morgan',
-    studentRoll: 'CS-22-094',
-    studentEmail: 'student@campusflow.demo',
+    studentName: 'Varun Maddu',
+    studentRoll: '221FA04001',
+    studentEmail: 'student.varun@vignan.ac.in',
     studentDepartment: 'Department of CSBS & IoT',
     registrationId: 'PASS-2026-8840-ALX',
     registeredAt: '2026-09-07T14:20:00Z',
@@ -673,9 +673,9 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     eventDate: '2026-09-23',
     eventVenue: 'Open Atrium & Lab Complex',
     studentId: 'user-student-01',
-    studentName: 'Alex Morgan',
-    studentRoll: 'CS-22-094',
-    studentEmail: 'student@campusflow.demo',
+    studentName: 'Varun Maddu',
+    studentRoll: '221FA04001',
+    studentEmail: 'student.varun@vignan.ac.in',
     studentDepartment: 'Department of CSBS & IoT',
     registrationId: 'PASS-2026-8839-ALX',
     registeredAt: '2026-09-05T16:00:00Z',
@@ -691,9 +691,9 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     eventDate: '2026-08-14',
     eventVenue: 'Turing Main Auditorium',
     studentId: 'user-student-01',
-    studentName: 'Alex Morgan',
-    studentRoll: 'CS-22-094',
-    studentEmail: 'student@campusflow.demo',
+    studentName: 'Varun Maddu',
+    studentRoll: '221FA04001',
+    studentEmail: 'student.varun@vignan.ac.in',
     studentDepartment: 'Department of CSBS & IoT',
     registrationId: 'PASS-2026-8834-ALX',
     registeredAt: '2026-08-10T11:00:00Z',
@@ -876,3 +876,58 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: '2026-09-06T11:00:00Z'
   }
 ];
+
+export const INITIAL_FEEDBACKS: FeedbackRecord[] = [
+  {
+    id: 'fb-01',
+    eventId: 'EVT-COMPLETED-8834',
+    eventTitle: 'Computer Vision & Edge Inference Symposium',
+    studentId: 'user-student-01',
+    studentName: 'Varun Maddu',
+    studentRoll: '221FA04001',
+    studentDepartment: 'Department of CSBS & IoT',
+    rating: 5,
+    contentQuality: 5,
+    organization: 5,
+    speakerRating: 5,
+    comment: 'Exceptional hands-on workshop! The TensorRT optimization benchmarks on real NVIDIA Jetson modules were eye-opening.',
+    takeaways: 'Learned INT8 quantization, TensorRT acceleration pipelines, and real-time inference latency constraints.',
+    wouldRecommend: true,
+    createdAt: '2026-08-15T10:30:00Z'
+  },
+  {
+    id: 'fb-02',
+    eventId: 'EVT-GENAI-8841',
+    eventTitle: 'Generative AI Workshop: From Prompting to Prototyping',
+    studentId: 'user-student-02',
+    studentName: 'Priya Sharma',
+    studentRoll: 'CS-22-108',
+    studentDepartment: 'Department of CSBS & IoT',
+    rating: 5,
+    contentQuality: 5,
+    organization: 4,
+    speakerRating: 5,
+    comment: 'Outstanding curriculum alignment and practical lab sandbox exercises using LangGraph and pgvector.',
+    takeaways: 'Mastered production RAG architectures and multi-agent coordination frameworks.',
+    wouldRecommend: true,
+    createdAt: '2026-09-18T14:15:00Z'
+  },
+  {
+    id: 'fb-03',
+    eventId: 'EVT-MICRO-8840',
+    eventTitle: 'Cloud Native Microservices Bootcamp',
+    studentId: 'user-student-03',
+    studentName: 'Rahul Verma',
+    studentRoll: 'CS-22-045',
+    studentDepartment: 'Department of CSBS & IoT',
+    rating: 4,
+    contentQuality: 4,
+    organization: 5,
+    speakerRating: 4,
+    comment: 'Great hands-on Kubernetes canary deployment exercises on the university k3s cluster.',
+    takeaways: 'Container multi-stage builds and OpenTelemetry tracing.',
+    wouldRecommend: true,
+    createdAt: '2026-09-20T18:00:00Z'
+  }
+];
+

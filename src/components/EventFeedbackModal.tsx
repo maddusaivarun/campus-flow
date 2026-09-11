@@ -69,7 +69,7 @@ export const EventFeedbackModal: React.FC<EventFeedbackModalProps> = ({
     setErrorMessage('');
 
     try {
-      const token = localStorage.getItem('campusflow_auth_token');
+      const token = localStorage.getItem('campusflow_token') || localStorage.getItem('campusflow_auth_token');
       const res = await fetch(`/api/events/${event.id}/feedback`, {
         method: 'POST',
         headers: {

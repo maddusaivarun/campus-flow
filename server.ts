@@ -45,6 +45,7 @@ import {
   supabaseSyncRegistration,
   supabaseCancelRegistration,
   supabaseCheckInParticipant,
+  supabaseSyncFeedback,
   supabaseSyncProfile,
   getDatabaseStatus
 } from './src/lib/supabase';
@@ -268,6 +269,7 @@ async function startServer() {
         identifier,
         phone
       });
+      supabaseSyncProfile(updated).catch(() => {});
       res.json({ success: true, user: updated });
     } catch (err: any) {
       res.status(400).json({ error: err.message || 'Failed to update profile' });
@@ -292,6 +294,7 @@ async function startServer() {
         identifier,
         phone
       });
+      supabaseSyncProfile(updated).catch(() => {});
       res.json({ success: true, user: updated });
     } catch (err: any) {
       res.status(400).json({ error: err.message || 'Failed to update profile' });
@@ -948,6 +951,12 @@ Output MUST be strictly valid JSON matching this schema:
         takeaways: takeaways || '',
         wouldRecommend: wouldRecommend !== false
       });
+
+      // Synchronize feedback to Supabase mirror
+      supabaseSyncFeedback(record).catch((e) =>
+        console.warn('[Supabase] Feedback sync notice:', e)
+      );
+
       res.json({ success: true, feedback: record });
     } catch (err: any) {
       res.status(400).json({ error: err.message || 'Failed to submit feedback.' });
