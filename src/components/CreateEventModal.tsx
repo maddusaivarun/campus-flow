@@ -129,7 +129,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: copilotPrompt,
-          department: currentUser.departmentName
+          department: currentUser?.departmentName || 'Department of Computer Science & Engineering'
         })
       });
 

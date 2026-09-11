@@ -1531,7 +1531,8 @@ export function checkInParticipant(
     success: true,
     alreadyCheckedIn: false,
     message: `Admitted: ${reg.studentName} (${reg.studentRoll})`,
-    registration: reg
+    registration: reg,
+    event: evt
   };
 }
 
@@ -1811,11 +1812,5 @@ export function removeParticipantByOrganizer(
 
   saveDatabase();
   return { success: true, event: evt!, registration: reg };
-}
-
-export function resetDatabase(): DatabaseSchema {
-  dbState = getInitialDatabase();
-  saveDatabase();
-  return dbState;
 }
 

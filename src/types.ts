@@ -25,7 +25,9 @@ export type EventStatus =
   | 'PUBLISHED'
   | 'REGISTRATION_OPEN'
   | 'ONGOING'
+  | 'REGISTRATION_CLOSED'
   | 'COMPLETED'
+  | 'CANCELLED'
   | 'REJECTED';
 
 export type EventCategory =
