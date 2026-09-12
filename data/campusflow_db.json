@@ -8,7 +8,7 @@
       "departmentId": "dept-cse-vignan",
       "departmentName": "Department of Computer Science & Engineering",
       "identifier": "VUG-HOD-01",
-      "designation": "Head of Department (CSE) \u2022 Statutory Review Authority",
+      "designation": "Head of Department (CSE) • Statutory Review Authority",
       "avatarUrl": "",
       "phone": "+91 98480 22331",
       "passwordHash": "$2b$10$S8fQsA/BH5zJvR0Hi1vrGODfATw1/gAeSKzjXj8GfPzXOfFZoc3yq"
@@ -21,7 +21,7 @@
       "departmentId": "dept-cse-vignan",
       "departmentName": "Department of Computer Science & Engineering",
       "identifier": "VUG-FAC-041",
-      "designation": "Associate Professor \u2022 Dept. of CSE",
+      "designation": "Associate Professor • Dept. of CSE",
       "avatarUrl": "",
       "phone": "+91 94401 55662",
       "passwordHash": "$2b$10$S8fQsA/BH5zJvR0Hi1vrGODfATw1/gAeSKzjXj8GfPzXOfFZoc3yq"
@@ -55,6 +55,512 @@
   ],
   "events": [
     {
+      "id": "EVT-2026-5546",
+      "title": "Automated Robotics & Edge Sensor Testing Workshop",
+      "shortDescription": "Hands-on edge sensor telemetry integration.",
+      "description": "Practical lab session testing real microcontrollers.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design."
+      ],
+      "category": "Workshop",
+      "eventType": "Laboratory Workshop",
+      "departmentId": "dept-csbsiot-vignan",
+      "departmentName": "Department of CSBS & IoT",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSBS & IoT)",
+      "organizerContact": "faculty.csbsiot@vignan.ac.in",
+      "organizerDesignation": "Faculty Coordinator • Dept. of CSBS & IoT",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-11-10",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "Turing Hall, Gate 1 & 2 Main Lab Complex",
+      "capacity": 50,
+      "registeredCount": 1,
+      "registrationDeadline": "2026-11-10",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor",
+        "organization": "Department of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Architecture Overview",
+          "description": "System design principles and theoretical background."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic programming knowledge",
+        "thingsToBring": "Laptop with charger, university ID card",
+        "softwareTools": "VS Code, Python"
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 3",
+      "createdAt": "2026-09-12T00:13:11.642Z",
+      "updatedAt": "2026-09-12T00:13:11.663Z",
+      "submittedAt": "2026-09-12T00:13:11.649Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-12T00:13:11.653Z",
+      "hodReviewComment": "Approved by HOD with digital signature.",
+      "digitalSignatureHash": "0x77016c1ff974805a06240ff694504cde",
+      "attendanceCount": 1
+    },
+    {
+      "id": "EVT-2026-4678",
+      "title": "iorrt",
+      "shortDescription": "iorrt ",
+      "description": "iorrt ",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design.",
+        "Build and evaluate modular code artifacts using campus computational sandboxes."
+      ],
+      "category": "Workshop",
+      "eventType": "Hands-on Technical Workshop",
+      "departmentId": "dept-cse-vignan",
+      "departmentName": "Department of Computer Science & Engineering",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSE)",
+      "organizerContact": "faculty.cse@vignan.ac.in",
+      "organizerDesignation": "Associate Professor • Dept. of CSE",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-09-08",
+      "startTime": "09:30",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "CSBS-IoT Block, 2nd Floor, Room 204",
+      "capacity": 60,
+      "registeredCount": 0,
+      "registrationDeadline": "2026-09-23",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor • AI & IoT Lab",
+        "organization": "Dept. of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Theoretical Architecture Foundations",
+          "description": "Foundational concepts and system requirement walkthrough.",
+          "durationMinutes": 60
+        },
+        {
+          "id": "ag-2",
+          "time": "10:45 AM - 12:30 PM",
+          "sessionTitle": "Hands-on Implementation Lab",
+          "description": "Practical exercise in computing lab with mentor guidance.",
+          "durationMinutes": 105
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic Python fluency, data structures basics.",
+        "thingsToBring": "Personal laptop with charger, university ID.",
+        "softwareTools": "Python 3.10+, VS Code or Cursor IDE."
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 4 Outcome-Based Education Aligned",
+      "createdAt": "2026-09-11T17:01:23.566Z",
+      "updatedAt": "2026-09-11T17:02:19.903Z",
+      "submittedAt": "2026-09-11T17:01:23.566Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T17:02:19.903Z",
+      "hodReviewComment": "Approved. Certified curriculum tie-in for CSE department.",
+      "digitalSignatureHash": "0xac7c68d1271454e41ed515f8664b0e45",
+      "attendanceCount": 0
+    },
+    {
+      "id": "EVT-2026-6677",
+      "title": "iort workshop",
+      "shortDescription": "iort workshop",
+      "description": "iort workshop",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design.",
+        "Build and evaluate modular code artifacts using campus computational sandboxes."
+      ],
+      "category": "Workshop",
+      "eventType": "Hands-on Technical Workshop",
+      "departmentId": "dept-cse-vignan",
+      "departmentName": "Department of Computer Science & Engineering",
+      "organizerId": "user-hod-01",
+      "organizerName": "Head of Department (CSE)",
+      "organizerContact": "hod.cse@vignan.ac.in",
+      "organizerDesignation": "Head of Department (CSE) • Statutory Review Authority",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-09-24",
+      "startTime": "09:30",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "CSBS-IoT Block, 2nd Floor, Room 204",
+      "capacity": 60,
+      "registeredCount": 0,
+      "registrationDeadline": "2026-09-23",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor • AI & IoT Lab",
+        "organization": "Dept. of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Theoretical Architecture Foundations",
+          "description": "Foundational concepts and system requirement walkthrough.",
+          "durationMinutes": 60
+        },
+        {
+          "id": "ag-2",
+          "time": "10:45 AM - 12:30 PM",
+          "sessionTitle": "Hands-on Implementation Lab",
+          "description": "Practical exercise in computing lab with mentor guidance.",
+          "durationMinutes": 105
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic Python fluency, data structures basics.",
+        "thingsToBring": "Personal laptop with charger, university ID.",
+        "softwareTools": "Python 3.10+, VS Code or Cursor IDE."
+      },
+      "status": "PENDING_REVIEW",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 4 Outcome-Based Education Aligned",
+      "createdAt": "2026-09-11T16:57:25.711Z",
+      "updatedAt": "2026-09-11T16:57:25.711Z",
+      "submittedAt": "2026-09-11T16:57:25.711Z",
+      "version": 1,
+      "attendanceCount": 0
+    },
+    {
+      "id": "EVT-2026-6881",
+      "title": "Advanced Technical Workshop",
+      "shortDescription": "Curriculum-aligned practical workshop focusing on real-world implementations and system architecture.",
+      "description": "This university department activity equips students with hands-on foundational architectures and system design principles. Structured in accordance with Outcome-Based Education (OBE) and NAAC Criterion 1 & 2 metrics, participants will build and evaluate modular code artifacts using computational sandboxes.\n\nKey themes include distributed engineering, state validation, and scalable project deployment.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design.",
+        "Build and evaluate modular code artifacts using campus computational sandboxes.",
+        "Demonstrate compliant engineering practices aligned with university syllabus standards."
+      ],
+      "category": "Workshop",
+      "eventType": "Hands-on Technical Workshop",
+      "departmentId": "dept-cse-vignan",
+      "departmentName": "Department of Computer Science & Engineering",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSE)",
+      "organizerContact": "faculty.cse@vignan.ac.in",
+      "organizerDesignation": "Associate Professor • Dept. of CSE",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-09-24",
+      "startTime": "09:30",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "CSBS-IoT Block, 2nd Floor, Room 204",
+      "capacity": 60,
+      "registeredCount": 0,
+      "registrationDeadline": "2026-09-23",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor • AI & IoT Lab",
+        "organization": "Dept. of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:45 AM",
+          "sessionTitle": "Foundations & Architecture Walkthrough",
+          "description": "Core concepts, design patterns, and system requirements."
+        },
+        {
+          "id": "ag-2",
+          "time": "11:00 AM - 01:00 PM",
+          "sessionTitle": "Interactive Lab & Sandbox Prototyping",
+          "description": "Guided hands-on laboratory exercises with mentor support."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Foundational programming knowledge in Python or TypeScript.",
+        "thingsToBring": "Personal laptop with charger, university student ID card.",
+        "softwareTools": "VS Code or modern IDE, Node.js 20+ runtime."
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSE-8402: Module 4 & 5 (Outcome-Based Education Aligned)",
+      "createdAt": "2026-09-11T16:55:37.264Z",
+      "updatedAt": "2026-09-11T16:56:33.658Z",
+      "submittedAt": "2026-09-11T16:55:37.264Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T16:56:33.658Z",
+      "hodReviewComment": "Approved. Certified curriculum tie-in for CSE department.",
+      "digitalSignatureHash": "0x482426ed54f7a0795a7d7fed379dca8f",
+      "attendanceCount": 0
+    },
+    {
+      "id": "EVT-2026-4408",
+      "title": "Real-Time Edge Sensor Cloud Workshop",
+      "shortDescription": "Hands-on edge sensor telemetry integration.",
+      "description": "Practical lab session testing real microcontrollers.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design."
+      ],
+      "category": "Workshop",
+      "eventType": "Laboratory Workshop",
+      "departmentId": "dept-cse-vignan",
+      "departmentName": "Department of Computer Science & Engineering",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSE)",
+      "organizerContact": "faculty.cse@vignan.ac.in",
+      "organizerDesignation": "Associate Professor • Dept. of CSE",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-11-20",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "Turing Hall, Gate 1 & 2 Main Lab Complex",
+      "capacity": 40,
+      "registeredCount": 1,
+      "registrationDeadline": "2026-11-20",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor",
+        "organization": "Department of Computer Science & Engineering",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Architecture Overview",
+          "description": "System design principles and theoretical background."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic programming knowledge",
+        "thingsToBring": "Laptop with charger, university ID card",
+        "softwareTools": "VS Code, Python"
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 3",
+      "createdAt": "2026-09-11T16:44:29.156Z",
+      "updatedAt": "2026-09-11T16:44:29.203Z",
+      "submittedAt": "2026-09-11T16:44:29.156Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T16:44:29.172Z",
+      "hodReviewComment": "Statutory approval issued with university digital seal.",
+      "digitalSignatureHash": "0xac16481a2504aa8a9e5144b5c870b2d3",
+      "attendanceCount": 1
+    },
+    {
+      "id": "EVT-2026-9540",
+      "title": "Live Telemetry & IoT Cloud Workshop",
+      "shortDescription": "Hands-on edge sensor telemetry integration.",
+      "description": "Practical lab session testing real microcontrollers.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design."
+      ],
+      "category": "Workshop",
+      "eventType": "Laboratory Workshop",
+      "departmentId": "dept-cse-vignan",
+      "departmentName": "Department of Computer Science & Engineering",
+      "organizerId": "user-hod-01",
+      "organizerName": "Head of Department (CSE)",
+      "organizerContact": "hod.cse@vignan.ac.in",
+      "organizerDesignation": "Head of Department (CSE) • Statutory Review Authority",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-11-20",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "Turing Hall, Gate 1 & 2 Main Lab Complex",
+      "capacity": 40,
+      "registeredCount": 0,
+      "registrationDeadline": "2026-11-20",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor",
+        "organization": "Department of Computer Science & Engineering",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Architecture Overview",
+          "description": "System design principles and theoretical background."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic programming knowledge",
+        "thingsToBring": "Laptop with charger, university ID card",
+        "softwareTools": "VS Code, Python"
+      },
+      "status": "PENDING_REVIEW",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 3",
+      "createdAt": "2026-09-11T16:43:52.401Z",
+      "updatedAt": "2026-09-11T16:43:52.401Z",
+      "submittedAt": "2026-09-11T16:43:52.401Z",
+      "version": 1,
+      "attendanceCount": 0
+    },
+    {
+      "id": "EVT-2026-4372",
+      "title": "Automated Robotics & Edge Sensor Testing Workshop",
+      "shortDescription": "Hands-on edge sensor telemetry integration.",
+      "description": "Practical lab session testing real microcontrollers.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design."
+      ],
+      "category": "Workshop",
+      "eventType": "Laboratory Workshop",
+      "departmentId": "dept-csbsiot-vignan",
+      "departmentName": "Department of CSBS & IoT",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSBS & IoT)",
+      "organizerContact": "faculty.csbsiot@vignan.ac.in",
+      "organizerDesignation": "Faculty Coordinator • Dept. of CSBS & IoT",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-11-10",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "Turing Hall, Gate 1 & 2 Main Lab Complex",
+      "capacity": 50,
+      "registeredCount": 1,
+      "registrationDeadline": "2026-11-10",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor",
+        "organization": "Department of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Architecture Overview",
+          "description": "System design principles and theoretical background."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic programming knowledge",
+        "thingsToBring": "Laptop with charger, university ID card",
+        "softwareTools": "VS Code, Python"
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 3",
+      "createdAt": "2026-09-11T16:38:06.423Z",
+      "updatedAt": "2026-09-11T16:38:06.481Z",
+      "submittedAt": "2026-09-11T16:38:06.452Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T16:38:06.466Z",
+      "hodReviewComment": "Approved by HOD with digital signature.",
+      "digitalSignatureHash": "0x509588dd172e7f7f3b9ae0e9492811e3",
+      "attendanceCount": 1
+    },
+    {
+      "id": "EVT-2026-7255",
+      "title": "Automated Robotics & Edge Sensor Testing Workshop",
+      "shortDescription": "Hands-on edge sensor telemetry integration.",
+      "description": "Practical lab session testing real microcontrollers.",
+      "objectives": [
+        "Equip students with hands-on foundational architectures and system design."
+      ],
+      "category": "Workshop",
+      "eventType": "Laboratory Workshop",
+      "departmentId": "dept-csbsiot-vignan",
+      "departmentName": "Department of CSBS & IoT",
+      "organizerId": "user-faculty-01",
+      "organizerName": "Faculty Coordinator (CSBS & IoT)",
+      "organizerContact": "faculty.csbsiot@vignan.ac.in",
+      "organizerDesignation": "Faculty Coordinator • Dept. of CSBS & IoT",
+      "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-11-10",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "venue": "IoT & Embedded Systems Lab",
+      "locationDetails": "Turing Hall, Gate 1 & 2 Main Lab Complex",
+      "capacity": 50,
+      "registeredCount": 1,
+      "registrationDeadline": "2026-11-10",
+      "registrationRequired": true,
+      "targetAudience": "All B.Tech / M.Tech Students",
+      "eligibility": "Open to all registered Vignan University students",
+      "participationInstructions": "Please arrive 15 minutes before scheduled start time.",
+      "speaker": {
+        "name": "Dr. Sarah Jenkins",
+        "designation": "Assoc. Professor",
+        "organization": "Department of CSBS & IoT",
+        "bio": "Leading autonomous systems and applied deep learning research."
+      },
+      "agenda": [
+        {
+          "id": "ag-1",
+          "time": "09:30 AM - 10:30 AM",
+          "sessionTitle": "Architecture Overview",
+          "description": "System design principles and theoretical background."
+        }
+      ],
+      "requirements": {
+        "prerequisites": "Basic programming knowledge",
+        "thingsToBring": "Laptop with charger, university ID card",
+        "softwareTools": "VS Code, Python"
+      },
+      "status": "PUBLISHED",
+      "academicCredits": 2,
+      "syllabusMapping": "CSBS-IOT-8402: Module 3",
+      "createdAt": "2026-09-11T16:37:33.158Z",
+      "updatedAt": "2026-09-11T16:37:33.193Z",
+      "submittedAt": "2026-09-11T16:37:33.173Z",
+      "version": 1,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T16:37:33.179Z",
+      "hodReviewComment": "Approved by HOD with digital signature.",
+      "digitalSignatureHash": "0xdf39fa087e23f10ae7e2c065dc02209e",
+      "attendanceCount": 1
+    },
+    {
       "id": "EVT-2026-7982",
       "title": "Autonomous Edge AI & Robotics Summit 2026",
       "shortDescription": "Autonomous Edge AI & Robotics Summit 2026",
@@ -69,7 +575,7 @@
       "organizerId": "user-faculty-01",
       "organizerName": "Prof. Rajesh K. Sharma",
       "organizerContact": "faculty.rajesh@vignan.ac.in",
-      "organizerDesignation": "Associate Professor \u2022 Dept. of CSE",
+      "organizerDesignation": "Associate Professor • Dept. of CSE",
       "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
       "date": "2026-10-20",
       "startTime": "09:30",
@@ -112,7 +618,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "publishedAt": "2026-09-08T12:43:30.771Z",
       "hodReviewComment": "Approved. Certified curriculum tie-in for CSE department.",
-      "digitalSignatureHash": "0xa097e935c9d73294aa872dd6a46893fd"
+      "digitalSignatureHash": "0xa097e935c9d73294aa872dd6a46893fd",
+      "attendanceCount": 0
     },
     {
       "id": "EVT-2026-5387",
@@ -129,7 +636,7 @@
       "organizerId": "user-faculty-01",
       "organizerName": "Prof. Rajesh K. Sharma",
       "organizerContact": "faculty.rajesh@vignan.ac.in",
-      "organizerDesignation": "Associate Professor \u2022 Dept. of CSE",
+      "organizerDesignation": "Associate Professor • Dept. of CSE",
       "posterUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
       "date": "2026-10-15",
       "startTime": "09:30",
@@ -162,13 +669,18 @@
         "thingsToBring": "Laptop with charger, university ID card",
         "softwareTools": "VS Code, Python"
       },
-      "status": "PENDING_REVIEW",
+      "status": "PUBLISHED",
       "academicCredits": 2,
       "syllabusMapping": "CSE-8402: Module 4 & 5 OBE Aligned",
       "createdAt": "2026-09-08T12:43:06.712Z",
-      "updatedAt": "2026-09-08T12:43:06.712Z",
+      "updatedAt": "2026-09-11T16:53:31.098Z",
       "submittedAt": "2026-09-08T12:43:10.000Z",
-      "version": 1
+      "version": 1,
+      "attendanceCount": 0,
+      "hodReviewerName": "Head of Department (CSE)",
+      "publishedAt": "2026-09-11T16:53:31.098Z",
+      "hodReviewComment": "Approved. Certified curriculum tie-in for CSE department.",
+      "digitalSignatureHash": "0x6d07125ec4b8b3b9f1ca1e8885a38696"
     },
     {
       "id": "EVT-GENAI-8841",
@@ -186,8 +698,8 @@
       "departmentName": "Computer Science & Engineering",
       "organizerId": "user-faculty-01",
       "organizerName": "Faculty Coordinator (CSE)",
-      "organizerContact": "faculty.cse@vignan.ac.in \u2022 Ext: 4192",
-      "organizerDesignation": "Assoc. Professor \u2022 AI & Robotics Lab",
+      "organizerContact": "faculty.cse@vignan.ac.in • Ext: 4192",
+      "organizerDesignation": "Assoc. Professor • AI & Robotics Lab",
       "posterUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200",
       "date": "2026-09-18",
       "startTime": "09:30",
@@ -205,7 +717,7 @@
       "speaker": {
         "name": "Faculty Coordinator (AI Lab)",
         "designation": "Director, Campus AI & Autonomous Systems Research Lab",
-        "organization": "Ex-Google Research Fellow \u2022 Carnegie Mellon Alum",
+        "organization": "Ex-Google Research Fellow • Carnegie Mellon Alum",
         "bio": "Dr. Jenkins holds a doctorate in Distributed Cognitive Systems from Carnegie Mellon. Her lab focuses on low-latency inference on edge silicon and provable alignment bounds for agent architectures.",
         "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400"
       },
@@ -255,7 +767,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "publishedAt": "2026-09-08T13:01:56.403Z",
       "hodReviewComment": "Approved. Certified curriculum tie-in for CSE department.",
-      "digitalSignatureHash": "0x44026fb9c4d0e128cd73347c5e9e6aec"
+      "digitalSignatureHash": "0x44026fb9c4d0e128cd73347c5e9e6aec",
+      "attendanceCount": 4
     },
     {
       "id": "EVT-MICRO-8840",
@@ -326,7 +839,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Approved. Essential curriculum tie-in for Cloud Computing lab requirements.",
       "digitalSignatureHash": "0x8f9a2c41e8bd0192ea94c7b80",
-      "version": 2
+      "version": 2,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-HACK-8839",
@@ -404,7 +918,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Approved department flagship. Budget and 24-hr facility access cleared with campus security.",
       "digitalSignatureHash": "0x9923a1f4b008d72e61ba90",
-      "version": 3
+      "version": 3,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-DB-8838",
@@ -475,7 +990,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Approved with distinguished industrial sync certification.",
       "digitalSignatureHash": "0x17bfa00921ec3d4f88910",
-      "version": 1
+      "version": 1,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-COMP-8837",
@@ -545,7 +1061,8 @@
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Approved. Excellent preparation for ICPC regionals.",
       "digitalSignatureHash": "0x431ea0b91d2ff008129",
-      "version": 1
+      "version": 1,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-QUANT-8836",
@@ -606,7 +1123,8 @@
       "submittedAt": "2026-09-07T14:00:00Z",
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Please recheck the lab compute budget requirements for GPU instances. Provide allocation code under IEEE grant pool before statutory sign-off.",
-      "version": 2
+      "version": 2,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-DRAFT-8835",
@@ -664,7 +1182,8 @@
       "syllabusMapping": "CSE-8402: Module 5 (Alignment & RLHF)",
       "createdAt": "2026-09-08T07:15:00Z",
       "updatedAt": "2026-09-08T07:15:00Z",
-      "version": 1
+      "version": 1,
+      "attendanceCount": 0
     },
     {
       "id": "EVT-COMPLETED-8834",
@@ -727,10 +1246,168 @@
       "hodReviewerName": "Head of Department (CSE)",
       "hodReviewComment": "Archived and certified under NAAC Criterion 3.3.2.",
       "digitalSignatureHash": "0x9923bb00a112ec4917",
-      "version": 4
+      "version": 4,
+      "attendanceCount": 1
     }
   ],
   "approvals": [
+    {
+      "id": "appr-1789171991653",
+      "eventId": "EVT-2026-5546",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved by HOD with digital signature.",
+      "timestamp": "2026-09-12T00:13:11.653Z",
+      "signatureHash": "0x77016c1ff974805a06240ff694504cde"
+    },
+    {
+      "id": "appr-1789171991649",
+      "eventId": "EVT-2026-5546",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Ready for HOD review",
+      "timestamp": "2026-09-12T00:13:11.649Z"
+    },
+    {
+      "id": "appr-1789146139903",
+      "eventId": "EVT-2026-4678",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved. Certified curriculum tie-in for CSE department.",
+      "timestamp": "2026-09-11T17:02:19.903Z",
+      "signatureHash": "0xac7c68d1271454e41ed515f8664b0e45"
+    },
+    {
+      "id": "appr-1789146083566",
+      "eventId": "EVT-2026-4678",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Initial charter submitted for HOD review.",
+      "timestamp": "2026-09-11T17:01:23.566Z"
+    },
+    {
+      "id": "appr-1789145845711",
+      "eventId": "EVT-2026-6677",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "SUBMITTED",
+      "comment": "Initial charter submitted for HOD review.",
+      "timestamp": "2026-09-11T16:57:25.711Z"
+    },
+    {
+      "id": "appr-1789145793658",
+      "eventId": "EVT-2026-6881",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved. Certified curriculum tie-in for CSE department.",
+      "timestamp": "2026-09-11T16:56:33.658Z",
+      "signatureHash": "0x482426ed54f7a0795a7d7fed379dca8f"
+    },
+    {
+      "id": "appr-1789145737265",
+      "eventId": "EVT-2026-6881",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Initial charter submitted for HOD review.",
+      "timestamp": "2026-09-11T16:55:37.264Z"
+    },
+    {
+      "id": "appr-1789145611098",
+      "eventId": "EVT-2026-5387",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved. Certified curriculum tie-in for CSE department.",
+      "timestamp": "2026-09-11T16:53:31.098Z",
+      "signatureHash": "0x6d07125ec4b8b3b9f1ca1e8885a38696"
+    },
+    {
+      "id": "appr-1789145069172",
+      "eventId": "EVT-2026-4408",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Statutory approval issued with university digital seal.",
+      "timestamp": "2026-09-11T16:44:29.172Z",
+      "signatureHash": "0xac16481a2504aa8a9e5144b5c870b2d3"
+    },
+    {
+      "id": "appr-1789145069156",
+      "eventId": "EVT-2026-4408",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Initial charter submitted for HOD review.",
+      "timestamp": "2026-09-11T16:44:29.156Z"
+    },
+    {
+      "id": "appr-1789145032401",
+      "eventId": "EVT-2026-9540",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "SUBMITTED",
+      "comment": "Initial charter submitted for HOD review.",
+      "timestamp": "2026-09-11T16:43:52.401Z"
+    },
+    {
+      "id": "appr-1789144686466",
+      "eventId": "EVT-2026-4372",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved by HOD with digital signature.",
+      "timestamp": "2026-09-11T16:38:06.466Z",
+      "signatureHash": "0x509588dd172e7f7f3b9ae0e9492811e3"
+    },
+    {
+      "id": "appr-1789144686452",
+      "eventId": "EVT-2026-4372",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Ready for HOD review",
+      "timestamp": "2026-09-11T16:38:06.452Z"
+    },
+    {
+      "id": "appr-1789144653179",
+      "eventId": "EVT-2026-7255",
+      "actorId": "user-hod-01",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "action": "APPROVED",
+      "comment": "Approved by HOD with digital signature.",
+      "timestamp": "2026-09-11T16:37:33.179Z",
+      "signatureHash": "0xdf39fa087e23f10ae7e2c065dc02209e"
+    },
+    {
+      "id": "appr-1789144653173",
+      "eventId": "EVT-2026-7255",
+      "actorId": "user-faculty-01",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "action": "SUBMITTED",
+      "comment": "Ready for HOD review",
+      "timestamp": "2026-09-11T16:37:33.173Z"
+    },
     {
       "id": "appr-1788872516404",
       "eventId": "EVT-GENAI-8841",
@@ -787,6 +1464,82 @@
   ],
   "registrations": [
     {
+      "id": "reg-1789171991659-515",
+      "eventId": "EVT-2026-5546",
+      "eventTitle": "Automated Robotics & Edge Sensor Testing Workshop",
+      "eventDate": "2026-11-10",
+      "eventVenue": "IoT & Embedded Systems Lab",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentEmail": "student.varun@vignan.ac.in",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "registrationId": "VUG-2026-8800-001",
+      "registeredAt": "2026-09-12T00:13:11.659Z",
+      "status": "CONFIRMED",
+      "checkedIn": true,
+      "checkedInAt": "2026-09-12T00:13:11.663Z",
+      "seatZone": "Zone A",
+      "qrToken": "VUG-QR-VlVHLTIwMjYtODgwMC0wMDE6dXNlci1zdHVkZW50LTAx"
+    },
+    {
+      "id": "reg-1789145069187-218",
+      "eventId": "EVT-2026-4408",
+      "eventTitle": "Real-Time Edge Sensor Cloud Workshop",
+      "eventDate": "2026-11-20",
+      "eventVenue": "IoT & Embedded Systems Lab",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentEmail": "student.varun@vignan.ac.in",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "registrationId": "VUG-2026-9767-001",
+      "registeredAt": "2026-09-11T16:44:29.187Z",
+      "status": "CONFIRMED",
+      "checkedIn": true,
+      "checkedInAt": "2026-09-11T16:44:29.203Z",
+      "seatZone": "Zone A",
+      "qrToken": "VUG-QR-VlVHLTIwMjYtOTc2Ny0wMDE6dXNlci1zdHVkZW50LTAx"
+    },
+    {
+      "id": "reg-1789144686474-941",
+      "eventId": "EVT-2026-4372",
+      "eventTitle": "Automated Robotics & Edge Sensor Testing Workshop",
+      "eventDate": "2026-11-10",
+      "eventVenue": "IoT & Embedded Systems Lab",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentEmail": "student.varun@vignan.ac.in",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "registrationId": "VUG-2026-8138-001",
+      "registeredAt": "2026-09-11T16:38:06.474Z",
+      "status": "CONFIRMED",
+      "checkedIn": true,
+      "checkedInAt": "2026-09-11T16:38:06.481Z",
+      "seatZone": "Zone A",
+      "qrToken": "VUG-QR-VlVHLTIwMjYtODEzOC0wMDE6dXNlci1zdHVkZW50LTAx"
+    },
+    {
+      "id": "reg-1789144653187-0",
+      "eventId": "EVT-2026-7255",
+      "eventTitle": "Automated Robotics & Edge Sensor Testing Workshop",
+      "eventDate": "2026-11-10",
+      "eventVenue": "IoT & Embedded Systems Lab",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentEmail": "student.varun@vignan.ac.in",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "registrationId": "VUG-2026-2589-001",
+      "registeredAt": "2026-09-11T16:37:33.187Z",
+      "status": "CONFIRMED",
+      "checkedIn": true,
+      "checkedInAt": "2026-09-11T16:37:33.193Z",
+      "seatZone": "Zone A",
+      "qrToken": "VUG-QR-VlVHLTIwMjYtMjU4OS0wMDE6dXNlci1zdHVkZW50LTAx"
+    },
+    {
       "id": "reg-1788872611091-132",
       "eventId": "EVT-2026-7982",
       "eventTitle": "Autonomous Edge AI & Robotics Summit 2026",
@@ -838,7 +1591,7 @@
       "registeredAt": "2026-09-08T09:12:00Z",
       "status": "CONFIRMED",
       "checkedIn": false,
-      "seatZone": "Zone A \u2022 Row 04 \u2022 Seat 18",
+      "seatZone": "Zone A • Row 04 • Seat 18",
       "qrToken": "CF-PASS-8841-ALX-SECURE-HASH-2026"
     },
     {
@@ -912,7 +1665,7 @@
       "status": "CONFIRMED",
       "checkedIn": true,
       "checkedInAt": "2026-09-18T09:11:42Z",
-      "seatZone": "Zone B \u2022 Row 02 \u2022 Seat 04",
+      "seatZone": "Zone B • Row 02 • Seat 04",
       "qrToken": "CF-PASS-8841-PRS-SECURE-HASH-2026"
     },
     {
@@ -931,7 +1684,7 @@
       "status": "CONFIRMED",
       "checkedIn": true,
       "checkedInAt": "2026-09-18T09:10:55Z",
-      "seatZone": "Zone A \u2022 Row 01 \u2022 Seat 12",
+      "seatZone": "Zone A • Row 01 • Seat 12",
       "qrToken": "CF-PASS-8841-RHV-SECURE-HASH-2026"
     },
     {
@@ -950,7 +1703,7 @@
       "status": "CONFIRMED",
       "checkedIn": true,
       "checkedInAt": "2026-09-18T09:09:30Z",
-      "seatZone": "Zone C \u2022 Row 06 \u2022 Seat 22",
+      "seatZone": "Zone C • Row 06 • Seat 22",
       "qrToken": "CF-PASS-8841-KVZ-SECURE-HASH-2026"
     },
     {
@@ -968,7 +1721,7 @@
       "registeredAt": "2026-09-08T09:30:00Z",
       "status": "CONFIRMED",
       "checkedIn": false,
-      "seatZone": "Zone B \u2022 Row 05 \u2022 Seat 11",
+      "seatZone": "Zone B • Row 05 • Seat 11",
       "qrToken": "CF-PASS-8841-ELR-SECURE-HASH-2026"
     },
     {
@@ -987,11 +1740,253 @@
       "status": "CONFIRMED",
       "checkedIn": true,
       "checkedInAt": "2026-09-18T09:07:02Z",
-      "seatZone": "Zone A \u2022 Row 03 \u2022 Seat 09",
+      "seatZone": "Zone A • Row 03 • Seat 09",
       "qrToken": "CF-PASS-8841-MCV-SECURE-HASH-2026"
     }
   ],
   "notifications": [
+    {
+      "id": "notif-1789171991667",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "New Student Rating & Feedback",
+      "message": "Varun Maddu rated \"Automated Robotics & Edge Sensor Testing Workshop\" 5/5 stars. Check metrics in your Faculty Studio.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-09-12T00:13:11.667Z",
+      "eventId": "EVT-2026-5546"
+    },
+    {
+      "id": "notif-1789171991659",
+      "userId": "user-student-01",
+      "role": "STUDENT",
+      "title": "Registration Confirmed!",
+      "message": "Your gate pass VUG-2026-8800-001 for \"Automated Robotics & Edge Sensor Testing Workshop\" is ready. Show this pass at the entrance.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-12T00:13:11.659Z",
+      "eventId": "EVT-2026-5546"
+    },
+    {
+      "id": "notif-1789171991653",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Automated Robotics & Edge Sensor Testing Workshop\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-12T00:13:11.653Z",
+      "eventId": "EVT-2026-5546"
+    },
+    {
+      "id": "notif-1789171991649",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "Charter Awaiting Statutory Review",
+      "message": "Faculty Coordinator (CSBS & IoT) submitted \"Automated Robotics & Edge Sensor Testing Workshop\" for approval.",
+      "type": "action_required",
+      "read": false,
+      "createdAt": "2026-09-12T00:13:11.649Z",
+      "eventId": "EVT-2026-5546"
+    },
+    {
+      "id": "notif-1789146139903",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"iorrt\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T17:02:19.903Z",
+      "eventId": "EVT-2026-4678"
+    },
+    {
+      "id": "notif-1789146083566",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "New Activity Charter Submitted for Review",
+      "message": "Faculty Coordinator (CSE) submitted \"iorrt\" for statutory sign-off.",
+      "type": "action_required",
+      "read": false,
+      "createdAt": "2026-09-11T17:01:23.566Z",
+      "eventId": "EVT-2026-4678"
+    },
+    {
+      "id": "notif-1789145845711",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "New Activity Charter Submitted for Review",
+      "message": "Head of Department (CSE) submitted \"iort workshop\" for statutory sign-off.",
+      "type": "action_required",
+      "read": false,
+      "createdAt": "2026-09-11T16:57:25.711Z",
+      "eventId": "EVT-2026-6677"
+    },
+    {
+      "id": "notif-1789145793659",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Advanced Technical Workshop\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:56:33.658Z",
+      "eventId": "EVT-2026-6881"
+    },
+    {
+      "id": "notif-1789145737265",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "New Activity Charter Submitted for Review",
+      "message": "Faculty Coordinator (CSE) submitted \"Advanced Technical Workshop\" for statutory sign-off.",
+      "type": "action_required",
+      "read": false,
+      "createdAt": "2026-09-11T16:55:37.264Z",
+      "eventId": "EVT-2026-6881"
+    },
+    {
+      "id": "notif-1789145611098",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Autonomous Robotics & Embedded Edge AI Expo 2026\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:53:31.098Z",
+      "eventId": "EVT-2026-5387"
+    },
+    {
+      "id": "notif-1789145069219",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "New Student Rating & Feedback",
+      "message": "Varun Maddu rated \"Real-Time Edge Sensor Cloud Workshop\" 5/5 stars. Check metrics in your Faculty Studio.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-09-11T16:44:29.219Z",
+      "eventId": "EVT-2026-4408"
+    },
+    {
+      "id": "notif-1789145069187",
+      "userId": "user-student-01",
+      "role": "STUDENT",
+      "title": "Registration Confirmed!",
+      "message": "Your gate pass VUG-2026-9767-001 for \"Real-Time Edge Sensor Cloud Workshop\" is ready. Show this pass at the entrance.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:44:29.187Z",
+      "eventId": "EVT-2026-4408"
+    },
+    {
+      "id": "notif-1789145069172",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Real-Time Edge Sensor Cloud Workshop\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:44:29.172Z",
+      "eventId": "EVT-2026-4408"
+    },
+    {
+      "id": "notif-1789145069156",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "New Activity Charter Submitted for Review",
+      "message": "Faculty Coordinator (CSE) submitted \"Real-Time Edge Sensor Cloud Workshop\" for statutory sign-off.",
+      "type": "action_required",
+      "read": true,
+      "createdAt": "2026-09-11T16:44:29.156Z",
+      "eventId": "EVT-2026-4408"
+    },
+    {
+      "id": "notif-1789145032401",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "New Activity Charter Submitted for Review",
+      "message": "Head of Department (CSE) submitted \"Live Telemetry & IoT Cloud Workshop\" for statutory sign-off.",
+      "type": "action_required",
+      "read": true,
+      "createdAt": "2026-09-11T16:43:52.401Z",
+      "eventId": "EVT-2026-9540"
+    },
+    {
+      "id": "notif-1789144686490",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "New Student Rating & Feedback",
+      "message": "Varun Maddu rated \"Automated Robotics & Edge Sensor Testing Workshop\" 5/5 stars. Check metrics in your Faculty Studio.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-09-11T16:38:06.490Z",
+      "eventId": "EVT-2026-4372"
+    },
+    {
+      "id": "notif-1789144686475",
+      "userId": "user-student-01",
+      "role": "STUDENT",
+      "title": "Registration Confirmed!",
+      "message": "Your gate pass VUG-2026-8138-001 for \"Automated Robotics & Edge Sensor Testing Workshop\" is ready. Show this pass at the entrance.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:38:06.474Z",
+      "eventId": "EVT-2026-4372"
+    },
+    {
+      "id": "notif-1789144686466",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Automated Robotics & Edge Sensor Testing Workshop\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:38:06.466Z",
+      "eventId": "EVT-2026-4372"
+    },
+    {
+      "id": "notif-1789144686452",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "Charter Awaiting Statutory Review",
+      "message": "Faculty Coordinator (CSBS & IoT) submitted \"Automated Robotics & Edge Sensor Testing Workshop\" for approval.",
+      "type": "action_required",
+      "read": true,
+      "createdAt": "2026-09-11T16:38:06.452Z",
+      "eventId": "EVT-2026-4372"
+    },
+    {
+      "id": "notif-1789144653187",
+      "userId": "user-student-01",
+      "role": "STUDENT",
+      "title": "Registration Confirmed!",
+      "message": "Your gate pass VUG-2026-2589-001 for \"Automated Robotics & Edge Sensor Testing Workshop\" is ready. Show this pass at the entrance.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:37:33.187Z",
+      "eventId": "EVT-2026-7255"
+    },
+    {
+      "id": "notif-1789144653179",
+      "userId": "user-faculty-01",
+      "role": "FACULTY",
+      "title": "Charter Approved & Published!",
+      "message": "HOD Head of Department (CSE) signed off on \"Automated Robotics & Edge Sensor Testing Workshop\". Event is now live on the public student portal.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-09-11T16:37:33.179Z",
+      "eventId": "EVT-2026-7255"
+    },
+    {
+      "id": "notif-1789144653173",
+      "userId": "user-hod-01",
+      "role": "HOD",
+      "title": "Charter Awaiting Statutory Review",
+      "message": "Faculty Coordinator (CSBS & IoT) submitted \"Automated Robotics & Edge Sensor Testing Workshop\" for approval.",
+      "type": "action_required",
+      "read": true,
+      "createdAt": "2026-09-11T16:37:33.173Z",
+      "eventId": "EVT-2026-7255"
+    },
     {
       "id": "notif-1788872611091",
       "userId": "user-student-01",
@@ -1043,7 +2038,7 @@
       "title": "Charter Awaiting Statutory Review",
       "message": "Prof. Rajesh K. Sharma submitted \"Autonomous Edge AI & Robotics Summit 2026\" for approval.",
       "type": "action_required",
-      "read": false,
+      "read": true,
       "createdAt": "2026-09-08T12:43:30.652Z",
       "eventId": "EVT-2026-7982"
     },
@@ -1054,7 +2049,7 @@
       "title": "Statutory Approval Required",
       "message": "Faculty Coordinator (CSE) submitted \"Generative AI Workshop: From Prompting to Prototyping\" for HOD review.",
       "type": "action_required",
-      "read": false,
+      "read": true,
       "createdAt": "2026-09-08T08:45:00Z",
       "eventId": "EVT-GENAI-8841"
     },
@@ -1093,6 +2088,267 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "aud-1789171991667",
+      "eventId": "EVT-2026-5546",
+      "action": "FEEDBACK_SUBMITTED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student submitted 5★ feedback for event \"Automated Robotics & Edge Sensor Testing Workshop\".",
+      "timestamp": "2026-09-12T00:13:11.667Z"
+    },
+    {
+      "id": "audit-1789171991663-225",
+      "eventId": "EVT-2026-5546",
+      "action": "GATE_CHECK_IN",
+      "actorName": "Faculty Coordinator",
+      "actorRole": "FACULTY",
+      "details": "Student Varun Maddu (221FA04001) admitted at gate terminal by Faculty Coordinator. Pass: VUG-2026-8800-001",
+      "timestamp": "2026-09-12T00:13:11.663Z"
+    },
+    {
+      "id": "audit-1789171991659-849",
+      "eventId": "EVT-2026-5546",
+      "action": "STUDENT_REGISTERED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student Varun Maddu (221FA04001) registered for \"Automated Robotics & Edge Sensor Testing Workshop\". Pass: VUG-2026-8800-001",
+      "timestamp": "2026-09-12T00:13:11.659Z"
+    },
+    {
+      "id": "audit-1789171991653-372",
+      "eventId": "EVT-2026-5546",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Automated Robotics & Edge Sensor Testing Workshop\". Digital signature: 0x77016c1ff9...",
+      "timestamp": "2026-09-12T00:13:11.653Z"
+    },
+    {
+      "id": "audit-1789171991649-113",
+      "eventId": "EVT-2026-5546",
+      "action": "SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event \"Automated Robotics & Edge Sensor Testing Workshop\" submitted to HOD queue by Faculty Coordinator (CSBS & IoT).",
+      "timestamp": "2026-09-12T00:13:11.649Z"
+    },
+    {
+      "id": "audit-1789171991645-589",
+      "eventId": "EVT-2026-5546",
+      "action": "EVENT_DRAFT_CREATED",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event draft \"Automated Robotics & Edge Sensor Testing Workshop\" saved.",
+      "timestamp": "2026-09-12T00:13:11.642Z"
+    },
+    {
+      "id": "audit-1789146139903-840",
+      "eventId": "EVT-2026-4678",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"iorrt\". Digital signature: 0xac7c68d127...",
+      "timestamp": "2026-09-11T17:02:19.903Z"
+    },
+    {
+      "id": "audit-1789146083566-701",
+      "eventId": "EVT-2026-4678",
+      "action": "EVENT_SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "details": "Event \"iorrt\" created and submitted directly to HOD review queue.",
+      "timestamp": "2026-09-11T17:01:23.566Z"
+    },
+    {
+      "id": "audit-1789145845711-336",
+      "eventId": "EVT-2026-6677",
+      "action": "EVENT_SUBMITTED_FOR_REVIEW",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "Event \"iort workshop\" created and submitted directly to HOD review queue.",
+      "timestamp": "2026-09-11T16:57:25.711Z"
+    },
+    {
+      "id": "audit-1789145793658-389",
+      "eventId": "EVT-2026-6881",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Advanced Technical Workshop\". Digital signature: 0x482426ed54...",
+      "timestamp": "2026-09-11T16:56:33.658Z"
+    },
+    {
+      "id": "audit-1789145737265-78",
+      "eventId": "EVT-2026-6881",
+      "action": "EVENT_SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "details": "Event \"Advanced Technical Workshop\" created and submitted directly to HOD review queue.",
+      "timestamp": "2026-09-11T16:55:37.264Z"
+    },
+    {
+      "id": "audit-1789145611098-238",
+      "eventId": "EVT-2026-5387",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Autonomous Robotics & Embedded Edge AI Expo 2026\". Digital signature: 0x6d07125ec4...",
+      "timestamp": "2026-09-11T16:53:31.098Z"
+    },
+    {
+      "id": "aud-1789145069219",
+      "eventId": "EVT-2026-4408",
+      "action": "FEEDBACK_SUBMITTED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student submitted 5★ feedback for event \"Real-Time Edge Sensor Cloud Workshop\".",
+      "timestamp": "2026-09-11T16:44:29.219Z"
+    },
+    {
+      "id": "audit-1789145069203-79",
+      "eventId": "EVT-2026-4408",
+      "action": "GATE_CHECK_IN",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "details": "Student Varun Maddu (221FA04001) admitted at gate terminal by Faculty Coordinator (CSE). Pass: VUG-2026-9767-001",
+      "timestamp": "2026-09-11T16:44:29.203Z"
+    },
+    {
+      "id": "audit-1789145069187-799",
+      "eventId": "EVT-2026-4408",
+      "action": "STUDENT_REGISTERED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student Varun Maddu (221FA04001) registered for \"Real-Time Edge Sensor Cloud Workshop\". Pass: VUG-2026-9767-001",
+      "timestamp": "2026-09-11T16:44:29.187Z"
+    },
+    {
+      "id": "audit-1789145069172-374",
+      "eventId": "EVT-2026-4408",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Real-Time Edge Sensor Cloud Workshop\". Digital signature: 0xac16481a25...",
+      "timestamp": "2026-09-11T16:44:29.172Z"
+    },
+    {
+      "id": "audit-1789145069156-425",
+      "eventId": "EVT-2026-4408",
+      "action": "EVENT_SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSE)",
+      "actorRole": "FACULTY",
+      "details": "Event \"Real-Time Edge Sensor Cloud Workshop\" created and submitted directly to HOD review queue.",
+      "timestamp": "2026-09-11T16:44:29.156Z"
+    },
+    {
+      "id": "audit-1789145032401-866",
+      "eventId": "EVT-2026-9540",
+      "action": "EVENT_SUBMITTED_FOR_REVIEW",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "Event \"Live Telemetry & IoT Cloud Workshop\" created and submitted directly to HOD review queue.",
+      "timestamp": "2026-09-11T16:43:52.401Z"
+    },
+    {
+      "id": "aud-1789144686490",
+      "eventId": "EVT-2026-4372",
+      "action": "FEEDBACK_SUBMITTED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student submitted 5★ feedback for event \"Automated Robotics & Edge Sensor Testing Workshop\".",
+      "timestamp": "2026-09-11T16:38:06.490Z"
+    },
+    {
+      "id": "audit-1789144686481-833",
+      "eventId": "EVT-2026-4372",
+      "action": "GATE_CHECK_IN",
+      "actorName": "Faculty Coordinator",
+      "actorRole": "FACULTY",
+      "details": "Student Varun Maddu (221FA04001) admitted at gate terminal by Faculty Coordinator. Pass: VUG-2026-8138-001",
+      "timestamp": "2026-09-11T16:38:06.481Z"
+    },
+    {
+      "id": "audit-1789144686475-985",
+      "eventId": "EVT-2026-4372",
+      "action": "STUDENT_REGISTERED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student Varun Maddu (221FA04001) registered for \"Automated Robotics & Edge Sensor Testing Workshop\". Pass: VUG-2026-8138-001",
+      "timestamp": "2026-09-11T16:38:06.474Z"
+    },
+    {
+      "id": "audit-1789144686466-565",
+      "eventId": "EVT-2026-4372",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Automated Robotics & Edge Sensor Testing Workshop\". Digital signature: 0x509588dd17...",
+      "timestamp": "2026-09-11T16:38:06.466Z"
+    },
+    {
+      "id": "audit-1789144686452-9",
+      "eventId": "EVT-2026-4372",
+      "action": "SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event \"Automated Robotics & Edge Sensor Testing Workshop\" submitted to HOD queue by Faculty Coordinator (CSBS & IoT).",
+      "timestamp": "2026-09-11T16:38:06.452Z"
+    },
+    {
+      "id": "audit-1789144686425-330",
+      "eventId": "EVT-2026-4372",
+      "action": "EVENT_DRAFT_CREATED",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event draft \"Automated Robotics & Edge Sensor Testing Workshop\" saved.",
+      "timestamp": "2026-09-11T16:38:06.423Z"
+    },
+    {
+      "id": "audit-1789144653193-18",
+      "eventId": "EVT-2026-7255",
+      "action": "GATE_CHECK_IN",
+      "actorName": "Faculty Coordinator",
+      "actorRole": "FACULTY",
+      "details": "Student Varun Maddu (221FA04001) admitted at gate terminal by Faculty Coordinator. Pass: VUG-2026-2589-001",
+      "timestamp": "2026-09-11T16:37:33.193Z"
+    },
+    {
+      "id": "audit-1789144653187-809",
+      "eventId": "EVT-2026-7255",
+      "action": "STUDENT_REGISTERED",
+      "actorName": "Varun Maddu",
+      "actorRole": "STUDENT",
+      "details": "Student Varun Maddu (221FA04001) registered for \"Automated Robotics & Edge Sensor Testing Workshop\". Pass: VUG-2026-2589-001",
+      "timestamp": "2026-09-11T16:37:33.187Z"
+    },
+    {
+      "id": "audit-1789144653179-931",
+      "eventId": "EVT-2026-7255",
+      "action": "APPROVED_AND_PUBLISHED",
+      "actorName": "Head of Department (CSE)",
+      "actorRole": "HOD",
+      "details": "HOD Head of Department (CSE) approved & published \"Automated Robotics & Edge Sensor Testing Workshop\". Digital signature: 0xdf39fa087e...",
+      "timestamp": "2026-09-11T16:37:33.179Z"
+    },
+    {
+      "id": "audit-1789144653173-209",
+      "eventId": "EVT-2026-7255",
+      "action": "SUBMITTED_FOR_REVIEW",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event \"Automated Robotics & Edge Sensor Testing Workshop\" submitted to HOD queue by Faculty Coordinator (CSBS & IoT).",
+      "timestamp": "2026-09-11T16:37:33.173Z"
+    },
+    {
+      "id": "audit-1789144653166-449",
+      "eventId": "EVT-2026-7255",
+      "action": "EVENT_DRAFT_CREATED",
+      "actorName": "Faculty Coordinator (CSBS & IoT)",
+      "actorRole": "FACULTY",
+      "details": "Event draft \"Automated Robotics & Edge Sensor Testing Workshop\" saved.",
+      "timestamp": "2026-09-11T16:37:33.158Z"
+    },
     {
       "id": "audit-1788872619718-392",
       "eventId": "EVT-2026-7982",
@@ -1220,6 +2476,57 @@
     }
   ],
   "feedbacks": [
+    {
+      "id": "fb-1789171991667-dcd3",
+      "eventId": "EVT-2026-5546",
+      "eventTitle": "Automated Robotics & Edge Sensor Testing Workshop",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "rating": 5,
+      "contentQuality": 5,
+      "organization": 5,
+      "speakerRating": 5,
+      "comment": "Exceptional hands-on learning experience with direct sensor hardware!",
+      "takeaways": "Real-time telemetry and microcontroller interrupt loops.",
+      "wouldRecommend": true,
+      "createdAt": "2026-09-12T00:13:11.667Z"
+    },
+    {
+      "id": "fb-1789145069219-dwq8",
+      "eventId": "EVT-2026-4408",
+      "eventTitle": "Real-Time Edge Sensor Cloud Workshop",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "rating": 5,
+      "contentQuality": 5,
+      "organization": 5,
+      "speakerRating": 5,
+      "comment": "Superb practical learning session!",
+      "takeaways": "Real-time telemetry and edge cloud sync.",
+      "wouldRecommend": true,
+      "createdAt": "2026-09-11T16:44:29.219Z"
+    },
+    {
+      "id": "fb-1789144686490-iryf",
+      "eventId": "EVT-2026-4372",
+      "eventTitle": "Automated Robotics & Edge Sensor Testing Workshop",
+      "studentId": "user-student-01",
+      "studentName": "Varun Maddu",
+      "studentRoll": "221FA04001",
+      "studentDepartment": "Department of Computer Science & Engineering",
+      "rating": 5,
+      "contentQuality": 5,
+      "organization": 5,
+      "speakerRating": 5,
+      "comment": "Exceptional hands-on learning experience with direct sensor hardware!",
+      "takeaways": "Real-time telemetry and microcontroller interrupt loops.",
+      "wouldRecommend": true,
+      "createdAt": "2026-09-11T16:38:06.490Z"
+    },
     {
       "id": "fb-01",
       "eventId": "EVT-COMPLETED-8834",

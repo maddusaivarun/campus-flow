@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
@@ -26,7 +27,34 @@ import {
 } from '../data/seedData';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'campusflow-vignan-secure-jwt-secret-key-2026';
-const DATA_DIR = path.join(process.cwd(), 'data');
+
+function resolveDataDir(): string {
+  if (process.env.DATA_DIR) {
+    return process.env.DATA_DIR;
+  }
+  const defaultDir = path.join(process.cwd(), 'data');
+  try {
+    if (!fs.existsSync(defaultDir)) {
+      fs.mkdirSync(defaultDir, { recursive: true });
+    }
+    const testFile = path.join(defaultDir, `.test-write-${Date.now()}`);
+    fs.writeFileSync(testFile, '1');
+    fs.unlinkSync(testFile);
+    return defaultDir;
+  } catch {
+    const fallbackDir = path.join(os.tmpdir(), 'campusflow-data');
+    try {
+      if (!fs.existsSync(fallbackDir)) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+      }
+      return fallbackDir;
+    } catch {
+      return defaultDir;
+    }
+  }
+}
+
+const DATA_DIR = resolveDataDir();
 const DB_FILE = path.join(DATA_DIR, 'campusflow_db.json');
 
 export const INITIAL_FEEDBACKS: FeedbackRecord[] = [
@@ -1463,6 +1491,7 @@ export function checkInParticipant(
   alreadyCheckedIn: boolean;
   message: string;
   registration: RegistrationRecord;
+  event?: DepartmentEvent;
 } {
   const db = loadDatabase();
   const clean = query.trim().toLowerCase();

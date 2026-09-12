@@ -165,7 +165,18 @@ function requireRole(allowedRoles: UserRole[]) {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
+
+  // CORS and reverse-proxy headers for cloud deployment (Docker, Render, Cloud Run, Heroku)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-user-id, x-user-role, x-dept-id, x-auth-token');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
 
   app.use(express.json({ limit: '10mb' }));
   app.use(authMiddleware);
@@ -1177,9 +1188,21 @@ INSTRUCTIONS:
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`CAMPUSFLOW server running on port ${PORT}`);
   });
+
+  // Graceful shutdown handling for container/cloud environments
+  const handleShutdown = (signal: string) => {
+    console.log(`[CAMPUSFLOW] ${signal} signal received: closing HTTP server cleanly...`);
+    server.close(() => {
+      console.log('[CAMPUSFLOW] HTTP server closed gracefully.');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 startServer();

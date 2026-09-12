@@ -230,7 +230,38 @@ export function App() {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+
+    // Auto-refresh interval (every 8 seconds when active, keeps all attendance, rosters, and analytics live)
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        loadData();
+      }
+    }, 8000);
+
+    // Immediate sync on tab focus or visibility return
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadData();
+      }
+    };
+    const handleFocus = () => {
+      loadData();
+    };
+    const handleCustomRefresh = () => {
+      loadData();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('campusflow:refresh', handleCustomRefresh);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('campusflow:refresh', handleCustomRefresh);
+    };
+  }, [loadData, activeTab]);
 
   // Handle student registration
   const handleRegisterForEvent = async (
@@ -678,7 +709,7 @@ export function App() {
       {/* MODAL 1: EVENT DETAIL & STUDENT REGISTRATION */}
       {detailEvent && (
         <EventDetailModal
-          event={detailEvent}
+          event={events.find((e) => e.id === detailEvent.id) || detailEvent}
           onClose={() => setDetailEvent(null)}
           currentUser={currentUser}
           isRegistered={registeredEventIds.includes(detailEvent.id)}

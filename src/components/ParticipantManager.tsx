@@ -10,7 +10,8 @@ import {
   Calendar,
   MapPin,
   ExternalLink,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { DepartmentEvent, RegistrationRecord, UserProfile } from '../types';
 
@@ -42,6 +43,22 @@ export const ParticipantManager: React.FC<ParticipantManagerProps> = ({
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'CHECKED_IN' | 'PENDING'>('ALL');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Synchronize when selectedEventId prop changes or when published events become available
+  React.useEffect(() => {
+    if (selectedEventId) {
+      setActiveEventId(selectedEventId);
+    } else if (!activeEventId && publishedEvents.length > 0) {
+      setActiveEventId(publishedEvents[0].id);
+    }
+  }, [selectedEventId, publishedEvents.length]);
+
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    window.dispatchEvent(new CustomEvent('campusflow:refresh'));
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
 
   const handleManualCheckIn = async (regId: string) => {
     if (!onCheckInParticipant || processingId) return;
@@ -143,15 +160,25 @@ export const ParticipantManager: React.FC<ParticipantManagerProps> = ({
           </p>
         </div>
 
-        {currentEvent && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleExportCSV}
-            className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl flex items-center gap-2 backdrop-blur border border-white/20 transition-all shrink-0"
+            onClick={handleManualRefresh}
+            title="Refresh participant roster and attendance in real time"
+            className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl flex items-center gap-2 backdrop-blur border border-white/20 transition-all shrink-0"
           >
-            <Download className="w-4 h-4" />
-            Export Roster (CSV)
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Live Gate Sync</span>
           </button>
-        )}
+          {currentEvent && (
+            <button
+              onClick={handleExportCSV}
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl flex items-center gap-2 backdrop-blur border border-white/20 transition-all shrink-0"
+            >
+              <Download className="w-4 h-4" />
+              Export Roster (CSV)
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Select Event Strip */}
