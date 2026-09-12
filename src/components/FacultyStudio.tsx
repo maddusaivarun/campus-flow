@@ -48,9 +48,13 @@ export const FacultyStudio: React.FC<FacultyStudioProps> = ({
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  // Faculty only manages events they organized (or all department events in demo mode)
+  // Faculty manages their organized events and departmental charters in Faculty Studio
   const myEvents = events.filter(
-    (e) => e.organizerId === currentUser.id || currentUser.role === 'HOD'
+    (e) =>
+      e.organizerId === currentUser.id ||
+      currentUser.role === 'HOD' ||
+      currentUser.role === 'FACULTY' ||
+      !e.organizerId
   );
 
   const filteredEvents = myEvents.filter((e) => {

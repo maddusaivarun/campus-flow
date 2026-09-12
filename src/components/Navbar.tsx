@@ -36,6 +36,7 @@ interface NavbarProps {
   onProposeEvent?: () => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
+  onQuickRoleSwitch?: (role: UserRole) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -50,7 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCustomizeProfile,
   onProposeEvent,
   isDarkMode = false,
-  onToggleDarkMode
+  onToggleDarkMode,
+  onQuickRoleSwitch
 }) => {
   const unreadNotifs = notifications.filter((n) => !n.read).length;
   const isAuthenticated = Boolean(currentUser && currentUser.role && currentUser.role !== 'PUBLIC');
@@ -103,11 +105,63 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
+          {/* 1-Click Role Switcher for Testing and Evaluator Navigation */}
+          {onQuickRoleSwitch && (
+            <div className="flex items-center gap-1 bg-white/10 p-0.5 rounded-lg text-[11px] font-semibold">
+              <span className="text-slate-400 px-1.5 hidden md:inline text-[10px]">Role:</span>
+              <button
+                type="button"
+                onClick={() => onQuickRoleSwitch('PUBLIC')}
+                className={`px-2 py-0.5 rounded transition-all ${
+                  !isAuthenticated
+                    ? 'bg-white text-slate-900 font-bold shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+                title="Browse as University Visitor / Public Guest"
+              >
+                Guest
+              </button>
+              <button
+                type="button"
+                onClick={() => onQuickRoleSwitch('STUDENT')}
+                className={`px-2 py-0.5 rounded transition-all ${
+                  currentUser?.role === 'STUDENT'
+                    ? 'bg-emerald-500 text-white font-bold shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+                title="Switch to Student Account (Varun Maddu)"
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => onQuickRoleSwitch('FACULTY')}
+                className={`px-2 py-0.5 rounded transition-all ${
+                  currentUser?.role === 'FACULTY'
+                    ? 'bg-blue-600 text-white font-bold shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+                title="Switch to Faculty Coordinator"
+              >
+                Faculty
+              </button>
+              <button
+                type="button"
+                onClick={() => onQuickRoleSwitch('HOD')}
+                className={`px-2 py-0.5 rounded transition-all ${
+                  currentUser?.role === 'HOD'
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+                title="Switch to Head of Department (HOD Approval Authority)"
+              >
+                HOD
+              </button>
+            </div>
+          )}
+
           {!isAuthenticated ? (
             <div className="flex items-center gap-2 text-xs">
-              <span className="hidden sm:inline text-slate-400">
-                Browsing as Public Guest
-              </span>
               <button
                 onClick={() => onOpenAuthModal('signin')}
                 className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-xs transition-colors"
@@ -118,9 +172,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           ) : (
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 hidden sm:inline">
-                Authenticated:
-              </span>
               <span
                 className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] tracking-wider uppercase ${
                   isHOD
@@ -130,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'bg-emerald-500 text-white'
                 }`}
               >
-                {currentUser?.role} MODE
+                {currentUser?.role} ACTIVE
               </span>
             </div>
           )}

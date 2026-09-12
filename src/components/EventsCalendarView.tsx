@@ -78,7 +78,7 @@ export const EventsCalendarView: React.FC<EventsCalendarViewProps> = ({
       if (!evt.date) return;
       if (selectedCategory !== 'All' && evt.category !== selectedCategory) return;
 
-      const key = evt.date.trim();
+      const key = evt.date.trim().split('T')[0];
       const existing = map.get(key) || [];
       existing.push(evt);
       map.set(key, existing);
@@ -157,7 +157,8 @@ export const EventsCalendarView: React.FC<EventsCalendarViewProps> = ({
   // Events on the currently selected date
   const selectedDayEvents = useMemo(() => {
     return events.filter((evt) => {
-      const matchesDate = evt.date === selectedDateStr;
+      const evtDate = (evt.date || '').trim().split('T')[0];
+      const matchesDate = evtDate === selectedDateStr;
       const matchesCat = selectedCategory === 'All' || evt.category === selectedCategory;
       return matchesDate && matchesCat;
     });
@@ -413,12 +414,24 @@ export const EventsCalendarView: React.FC<EventsCalendarViewProps> = ({
                         />
                       </div>
 
-                      {/* HOD Clearance Stamp */}
+                      {/* Status Stamp */}
                       <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                        <span className="flex items-center gap-1 text-emerald-700 font-medium">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                          HOD Verified
-                        </span>
+                        {evt.status === 'PUBLISHED' ? (
+                          <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            HOD Verified & Published
+                          </span>
+                        ) : evt.status === 'PENDING_REVIEW' ? (
+                          <span className="flex items-center gap-1 text-amber-700 font-medium">
+                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            Pending HOD Clearance
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-slate-500 font-medium">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            {evt.status}
+                          </span>
+                        )}
                         <span className="text-slate-600 font-medium">
                           {evt.registeredCount}/{evt.capacity} Seats
                         </span>

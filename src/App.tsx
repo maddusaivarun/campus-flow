@@ -222,17 +222,42 @@ export function App() {
     showToast('Signed out. You are now browsing as a public guest.', 'info');
   };
 
+  const handleQuickRoleSwitch = (role: UserRole) => {
+    if (role === 'PUBLIC') {
+      handleSignOut();
+      return;
+    }
+    const demoKey = role === 'HOD' ? 'hod' : role === 'FACULTY' ? 'faculty' : 'student';
+    const user = DEMO_USERS[demoKey];
+    const token = `client-token-${role.toLowerCase()}-${Date.now()}`;
+    setCurrentUser(user);
+    setAuthToken(token);
+    localStorage.setItem('campusflow_token', token);
+    localStorage.setItem('campusflow_custom_user', JSON.stringify(user));
+    showToast(`✓ Switched to ${user.name} (${user.role} view)`);
+    if (role === 'HOD') setActiveTab('hod-review');
+    else if (role === 'FACULTY') setActiveTab('faculty-studio');
+    else setActiveTab('discover');
+  };
+
   // Fetch data from server with safe client fallback
   const loadData = useCallback(async () => {
     try {
       const headers = getAuthHeaders();
 
-      // 1. Fetch events
-      const eventsEndpoint = currentUser.role === 'PUBLIC' ? '/api/events/public' : '/api/events';
-      const eventsData = await safeFetchJson<{ events: DepartmentEvent[] }>(eventsEndpoint, { headers });
+      // 1. Fetch events (Maintain full department lifecycle state)
+      const eventsData = await safeFetchJson<{ events: DepartmentEvent[] }>('/api/events', { headers });
       if (eventsData && Array.isArray(eventsData.events) && eventsData.events.length > 0) {
         setEvents(eventsData.events);
         localStorage.setItem('campusflow_events', JSON.stringify(eventsData.events));
+      } else {
+        try {
+          const saved = localStorage.getItem('campusflow_events');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) setEvents(parsed);
+          }
+        } catch {}
       }
 
       // 2. Fetch student registrations
@@ -451,43 +476,58 @@ export function App() {
     reason?: string
   ) => {
     const headers = getAuthHeaders();
-    let data: any = null;
     try {
-      data = await safeFetchJson<any>(`/api/events/${eventId}/review`, {
+      await safeFetchJson<any>(`/api/events/${eventId}/review`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ action, comment, reason })
       });
     } catch {}
 
-    if (data && data.success) {
-      await loadData();
-    } else {
-      const now = new Date().toISOString();
-      const sig =
-        action === 'APPROVED'
-          ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
-          : undefined;
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === eventId
-            ? {
-                ...e,
-                status:
-                  action === 'APPROVED'
-                    ? 'PUBLISHED'
-                    : action === 'CHANGES_REQUESTED'
-                    ? 'CHANGES_REQUESTED'
-                    : 'REJECTED',
-                digitalSignatureHash: sig,
-                hodReviewerName: currentUser.name,
-                hodReviewTimestamp: now,
-                hodReviewComment: comment
-              }
-            : e
-        )
+    const now = new Date().toISOString();
+    const sig =
+      action === 'APPROVED'
+        ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
+        : undefined;
+
+    setEvents((prev) => {
+      const updated = prev.map((e) =>
+        e.id === eventId
+          ? {
+              ...e,
+              status:
+                action === 'APPROVED'
+                  ? 'PUBLISHED'
+                  : action === 'CHANGES_REQUESTED'
+                  ? 'CHANGES_REQUESTED'
+                  : 'REJECTED',
+              digitalSignatureHash: sig,
+              hodReviewerName: currentUser.name || 'Head of Department (CSBS & IoT)',
+              hodReviewComment: comment || reason || 'Reviewed and digitally signed.',
+              publishedAt: action === 'APPROVED' ? now : e.publishedAt,
+              updatedAt: now
+            }
+          : e
       );
-    }
+      localStorage.setItem('campusflow_events', JSON.stringify(updated));
+      return updated;
+    });
+
+    // Record audit log
+    const newLog: AuditLogEntry = {
+      id: `log-${Date.now()}`,
+      eventId,
+      action: action === 'APPROVED' ? 'EVENT_APPROVED' : action === 'CHANGES_REQUESTED' ? 'EVENT_CHANGES_REQUESTED' : 'EVENT_REJECTED',
+      actorName: currentUser.name || 'Head of Department (CSBS & IoT)',
+      actorRole: 'HOD',
+      details: `Event status updated to ${action}. ${comment || reason || ''}`.trim(),
+      timestamp: now
+    };
+    setAuditLogs((prev) => {
+      const next = [newLog, ...prev];
+      localStorage.setItem('campusflow_audit_logs', JSON.stringify(next));
+      return next;
+    });
 
     showToast(
       action === 'APPROVED'
@@ -506,9 +546,8 @@ export function App() {
     reason?: string
   ) => {
     const headers = getAuthHeaders();
-    let data: any = null;
     try {
-      data = await safeFetchJson<any>('/api/events/bulk-review', {
+      await safeFetchJson<any>('/api/events/bulk-review', {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -520,40 +559,38 @@ export function App() {
       });
     } catch {}
 
-    if (data && data.success) {
-      await loadData();
-    } else {
-      const now = new Date().toISOString();
-      setEvents((prev) =>
-        prev.map((e) => {
-          if (!eventIds.includes(e.id)) return e;
-          const sig =
-            action === 'APPROVED'
-              ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
-              : undefined;
-          return {
-            ...e,
-            status: action === 'APPROVED' ? 'PUBLISHED' : 'REJECTED',
-            digitalSignatureHash: sig,
-            hodReviewerName: currentUser.name,
-            hodReviewTimestamp: now,
-            hodReviewComment: comment
-          };
-        })
-      );
-      data = {
-        success: true,
-        count: eventIds.length,
-        message: `Batch ${action}: ${eventIds.length} event(s) processed.`
-      };
-    }
+    const now = new Date().toISOString();
+    setEvents((prev) => {
+      const updated = prev.map((e) => {
+        if (!eventIds.includes(e.id)) return e;
+        const sig =
+          action === 'APPROVED'
+            ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
+            : undefined;
+        return {
+          ...e,
+          status: action === 'APPROVED' ? 'PUBLISHED' : 'REJECTED',
+          digitalSignatureHash: sig,
+          hodReviewerName: currentUser.name || 'Head of Department (CSBS & IoT)',
+          hodReviewComment: comment || reason || 'Statutory batch clearance.',
+          publishedAt: action === 'APPROVED' ? now : e.publishedAt,
+          updatedAt: now
+        };
+      });
+      localStorage.setItem('campusflow_events', JSON.stringify(updated));
+      return updated;
+    });
 
     showToast(
       action === 'APPROVED'
         ? `✓ Batch Approved: ${eventIds.length} event(s) published with statutory digital signatures!`
         : `✓ Batch Rejected: ${eventIds.length} event(s) rejected with recorded audit logs.`
     );
-    return data;
+    return {
+      success: true,
+      count: eventIds.length,
+      message: `Batch ${action}: ${eventIds.length} event(s) processed.`
+    };
   };
 
   // Handle Faculty submit to HOD
@@ -567,9 +604,33 @@ export function App() {
       });
     } catch {}
 
-    setEvents((prev) =>
-      prev.map((e) => (e.id === eventId ? { ...e, status: 'PENDING_REVIEW' } : e))
-    );
+    const now = new Date().toISOString();
+    setEvents((prev) => {
+      const updated = prev.map((e) =>
+        e.id === eventId ? { ...e, status: 'PENDING_REVIEW', submittedAt: now, updatedAt: now } : e
+      );
+      localStorage.setItem('campusflow_events', JSON.stringify(updated));
+      return updated;
+    });
+
+    const target = events.find((e) => e.id === eventId);
+    const newNotif: SystemNotification = {
+      id: `notif-${Date.now()}`,
+      userId: 'user-hod-01',
+      role: 'HOD',
+      title: 'Draft Submitted for HOD Review',
+      message: `Draft "${target?.title || 'Department Event'}" submitted for statutory review.`,
+      type: 'action_required',
+      read: false,
+      createdAt: now,
+      eventId
+    };
+    setNotifications((prev) => {
+      const next = [newNotif, ...prev];
+      localStorage.setItem('campusflow_notifications', JSON.stringify(next));
+      return next;
+    });
+
     showToast('✓ Submitted to Head of Department (HOD) for statutory review!');
   };
 
@@ -577,64 +638,112 @@ export function App() {
   const handleCreateEvent = async (eventData: Partial<DepartmentEvent>, submitImmediately: boolean) => {
     const headers = getAuthHeaders();
     let data: any = null;
+
+    const payload = {
+      ...eventData,
+      organizerId: currentUser.id || 'user-faculty-01',
+      organizerName: currentUser.name || 'Faculty Coordinator (CSBS & IoT)',
+      organizerContact: currentUser.email || 'faculty.csbsiot@vignan.ac.in',
+      organizerDesignation: currentUser.designation || 'Faculty Coordinator',
+      departmentId: currentUser.departmentId || 'dept-csbsiot-vignan',
+      departmentName: currentUser.departmentName || 'Department of CSBS & IoT',
+      submitImmediately
+    };
+
     try {
       data = await safeFetchJson<any>('/api/events', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          ...eventData,
-          submitImmediately
-        })
+        body: JSON.stringify(payload)
       });
     } catch {}
 
-    if (data && data.event) {
-      await loadData();
-    } else {
-      const newEvt: DepartmentEvent = {
-        id: `EVT-${Date.now().toString().slice(-4)}`,
-        title: eventData.title || 'Department Workshop',
-        shortDescription: eventData.shortDescription || '',
-        description: eventData.description || '',
-        category: eventData.category || 'Workshop',
-        eventType: eventData.eventType || 'Hands-on Technical Workshop',
-        status: submitImmediately ? 'PENDING_REVIEW' : 'DRAFT',
-        date: eventData.date || '2026-09-24',
-        startTime: eventData.startTime || '09:30',
-        endTime: eventData.endTime || '13:00',
-        venue: eventData.venue || 'IoT & Embedded Systems Lab',
-        locationDetails: eventData.locationDetails || 'CSBS Block, Room 204',
-        capacity: eventData.capacity || 60,
-        registeredCount: 0,
-        attendanceCount: 0,
-        academicCredits: eventData.academicCredits || 2.0,
-        syllabusMapping: eventData.syllabusMapping || 'Module 4 Outcome-Based Education Aligned',
-        departmentId: currentUser.departmentId || 'dept-csbsiot-vignan',
-        departmentName: currentUser.departmentName || 'Department of CSBS & IoT',
-        organizerId: currentUser.id,
-        organizerName: currentUser.name,
-        organizerContact: currentUser.email || '+91 98480 22331',
-        organizerDesignation: currentUser.designation || 'Faculty Coordinator',
-        posterUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
-        registrationDeadline: '2026-09-23',
-        registrationRequired: true,
-        targetAudience: 'Undergraduate Students',
-        eligibility: 'All Years B.Tech',
-        participationInstructions: 'Bring laptop and institutional ID.',
-        version: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        objectives: eventData.objectives || [],
-        agenda: eventData.agenda || [],
-        requirements: eventData.requirements || { prerequisites: '', thingsToBring: '', softwareTools: '' },
-        speaker: eventData.speaker || {
-          name: 'Faculty Speaker',
-          designation: 'Coordinator',
-          organization: 'Vignan',
-          bio: 'Department Faculty Coordinator'
-        }
+    const now = new Date().toISOString();
+    const newEvt: DepartmentEvent = (data && data.event) ? data.event : {
+      id: `EVT-${Date.now().toString().slice(-4)}`,
+      title: eventData.title || 'Department Workshop',
+      shortDescription: eventData.shortDescription || eventData.title || '',
+      description: eventData.description || eventData.shortDescription || eventData.title || '',
+      category: eventData.category || 'Workshop',
+      eventType: eventData.eventType || 'Hands-on Technical Workshop',
+      status: submitImmediately ? 'PENDING_REVIEW' : 'DRAFT',
+      date: eventData.date || '2026-09-24',
+      startTime: eventData.startTime || '09:30',
+      endTime: eventData.endTime || '13:00',
+      venue: eventData.venue || 'IoT & Embedded Systems Lab',
+      locationDetails: eventData.locationDetails || 'CSBS Block, Room 204',
+      capacity: Number(eventData.capacity) || 60,
+      registeredCount: 0,
+      attendanceCount: 0,
+      academicCredits: Number(eventData.academicCredits) || 2.0,
+      syllabusMapping: eventData.syllabusMapping || 'Module 4 Outcome-Based Education Aligned',
+      departmentId: currentUser.departmentId || 'dept-csbsiot-vignan',
+      departmentName: currentUser.departmentName || 'Department of CSBS & IoT',
+      organizerId: currentUser.id || 'user-faculty-01',
+      organizerName: currentUser.name || 'Faculty Coordinator (CSBS & IoT)',
+      organizerContact: currentUser.email || 'faculty.csbsiot@vignan.ac.in',
+      organizerDesignation: currentUser.designation || 'Faculty Coordinator',
+      posterUrl: eventData.posterUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+      registrationDeadline: eventData.registrationDeadline || eventData.date || '2026-09-23',
+      registrationRequired: true,
+      targetAudience: eventData.targetAudience || 'Undergraduate Students',
+      eligibility: eventData.eligibility || 'All Years B.Tech',
+      participationInstructions: eventData.participationInstructions || 'Bring laptop and institutional ID.',
+      registrationFormUrl: eventData.registrationFormUrl,
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      submittedAt: submitImmediately ? now : undefined,
+      objectives: eventData.objectives || [],
+      agenda: eventData.agenda || [],
+      requirements: eventData.requirements || { prerequisites: '', thingsToBring: '', softwareTools: '' },
+      speaker: eventData.speaker || {
+        name: 'Faculty Speaker',
+        designation: 'Coordinator',
+        organization: 'Vignan',
+        bio: 'Department Faculty Coordinator'
+      }
+    };
+
+    // Update React events state immediately and persist to localStorage
+    setEvents((prev) => {
+      const next = [newEvt, ...prev.filter((e) => e.id !== newEvt.id)];
+      localStorage.setItem('campusflow_events', JSON.stringify(next));
+      return next;
+    });
+
+    if (submitImmediately) {
+      const newNotif: SystemNotification = {
+        id: `notif-${Date.now()}`,
+        userId: 'user-hod-01',
+        role: 'HOD',
+        title: 'New Event Proposal Pending Review',
+        message: `"${newEvt.title}" submitted by ${newEvt.organizerName} for statutory HOD review.`,
+        type: 'action_required',
+        read: false,
+        createdAt: now,
+        eventId: newEvt.id
       };
-      setEvents((prev) => [newEvt, ...prev]);
+      setNotifications((prev) => {
+        const next = [newNotif, ...prev];
+        localStorage.setItem('campusflow_notifications', JSON.stringify(next));
+        return next;
+      });
+
+      const newLog: AuditLogEntry = {
+        id: `log-${Date.now()}`,
+        eventId: newEvt.id,
+        action: 'EVENT_SUBMITTED',
+        actorName: newEvt.organizerName,
+        actorRole: 'FACULTY',
+        details: `Charter "${newEvt.title}" submitted to HOD Clearance Queue.`,
+        timestamp: now
+      };
+      setAuditLogs((prev) => {
+        const next = [newLog, ...prev];
+        localStorage.setItem('campusflow_audit_logs', JSON.stringify(next));
+        return next;
+      });
     }
 
     setIsCreateModalOpen(false);
@@ -655,7 +764,11 @@ export function App() {
       });
     } catch {}
 
-    setEvents((prev) => prev.filter((e) => e.id !== eventId));
+    setEvents((prev) => {
+      const updated = prev.filter((e) => e.id !== eventId);
+      localStorage.setItem('campusflow_events', JSON.stringify(updated));
+      return updated;
+    });
     showToast('Event draft deleted.', 'info');
   };
 
@@ -669,9 +782,11 @@ export function App() {
       });
     } catch {}
 
-    setEvents((prev) =>
-      prev.map((e) => (e.id === eventId ? { ...e, status: 'COMPLETED' } : e))
-    );
+    setEvents((prev) => {
+      const updated = prev.map((e) => (e.id === eventId ? { ...e, status: 'COMPLETED' } : e));
+      localStorage.setItem('campusflow_events', JSON.stringify(updated));
+      return updated;
+    });
     showToast('Event marked as completed.', 'info');
   };
 
@@ -794,6 +909,7 @@ export function App() {
         onProposeEvent={() => setIsCreateModalOpen(true)}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
+        onQuickRoleSwitch={handleQuickRoleSwitch}
       />
 
       {/* Notifications Dropdown Modal */}

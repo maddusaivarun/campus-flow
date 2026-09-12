@@ -209,8 +209,8 @@ if (typeof window !== 'undefined') {
       const newEvt: DepartmentEvent = {
         id: `EVT-${Date.now().toString().slice(-4)}`,
         title: body.title || 'Untitled Activity',
-        shortDescription: body.shortDescription || '',
-        description: body.description || '',
+        shortDescription: body.shortDescription || body.title || '',
+        description: body.description || body.shortDescription || body.title || '',
         category: body.category || 'Workshop',
         eventType: body.eventType || 'Hands-on Technical Workshop',
         status: body.submitImmediately ? 'PENDING_REVIEW' : 'DRAFT',
@@ -219,26 +219,28 @@ if (typeof window !== 'undefined') {
         endTime: body.endTime || '13:00',
         venue: body.venue || 'IoT & Embedded Systems Lab',
         locationDetails: body.locationDetails || 'CSBS Block, 2nd Floor',
-        capacity: body.capacity || 60,
+        capacity: Number(body.capacity) || 60,
         registeredCount: 0,
         attendanceCount: 0,
-        academicCredits: body.academicCredits || 2.0,
+        academicCredits: Number(body.academicCredits) || 2.0,
         syllabusMapping: body.syllabusMapping || 'Outcome-Based Education Aligned',
-        departmentId: 'dept-csbsiot-vignan',
+        departmentId: body.departmentId || 'dept-csbsiot-vignan',
         departmentName: body.departmentName || 'Department of CSBS & IoT',
-        organizerId: 'user-faculty-01',
-        organizerName: 'Faculty Coordinator (CSBS & IoT)',
-        organizerContact: 'faculty.csbsiot@vignan.ac.in',
-        organizerDesignation: 'Faculty Coordinator',
-        posterUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
-        registrationDeadline: '2026-09-23',
+        organizerId: body.organizerId || 'user-faculty-01',
+        organizerName: body.organizerName || 'Faculty Coordinator (CSBS & IoT)',
+        organizerContact: body.organizerContact || 'faculty.csbsiot@vignan.ac.in',
+        organizerDesignation: body.organizerDesignation || 'Faculty Coordinator',
+        posterUrl: body.posterUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+        registrationDeadline: body.registrationDeadline || body.date || '2026-09-23',
         registrationRequired: true,
-        targetAudience: 'Undergraduate Students',
-        eligibility: 'All Years B.Tech',
-        participationInstructions: 'Bring personal laptop and institutional ID.',
+        targetAudience: body.targetAudience || 'Undergraduate Students',
+        eligibility: body.eligibility || 'All Years B.Tech',
+        participationInstructions: body.participationInstructions || 'Bring personal laptop and institutional ID.',
+        registrationFormUrl: body.registrationFormUrl,
         version: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        submittedAt: body.submitImmediately ? new Date().toISOString() : undefined,
         objectives: body.objectives || [],
         agenda: body.agenda || [],
         requirements: body.requirements || { prerequisites: '', thingsToBring: '', softwareTools: '' },
@@ -246,6 +248,35 @@ if (typeof window !== 'undefined') {
       };
       events.unshift(newEvt);
       saveStoredEvents(events);
+
+      if (body.submitImmediately) {
+        const notifs = getStoredNotifications();
+        notifs.unshift({
+          id: `notif-${Date.now()}`,
+          userId: 'user-hod-01',
+          role: 'HOD',
+          title: 'New Event Proposal Submitted',
+          message: `"${newEvt.title}" was submitted by ${newEvt.organizerName} for statutory HOD review.`,
+          type: 'action_required',
+          read: false,
+          createdAt: new Date().toISOString(),
+          eventId: newEvt.id
+        });
+        localStorage.setItem('campusflow_notifications', JSON.stringify(notifs));
+
+        const logs = getStoredAuditLogs();
+        logs.unshift({
+          id: `log-${Date.now()}`,
+          eventId: newEvt.id,
+          action: 'EVENT_SUBMITTED',
+          actorName: newEvt.organizerName,
+          actorRole: 'FACULTY',
+          details: `Charter "${newEvt.title}" submitted to HOD Clearance Queue.`,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('campusflow_audit_logs', JSON.stringify(logs));
+      }
+
       return jsonRes({ success: true, event: newEvt });
     }
 
@@ -256,10 +287,37 @@ if (typeof window !== 'undefined') {
       const match = events.find((e) => e.id === id);
       if (match) {
         match.status = 'PENDING_REVIEW';
+        match.submittedAt = new Date().toISOString();
         match.updatedAt = new Date().toISOString();
         saveStoredEvents(events);
+
+        const notifs = getStoredNotifications();
+        notifs.unshift({
+          id: `notif-${Date.now()}`,
+          userId: 'user-hod-01',
+          role: 'HOD',
+          title: 'Draft Submitted for HOD Review',
+          message: `Draft "${match.title}" has been submitted for statutory review.`,
+          type: 'action_required',
+          read: false,
+          createdAt: new Date().toISOString(),
+          eventId: match.id
+        });
+        localStorage.setItem('campusflow_notifications', JSON.stringify(notifs));
+
+        const logs = getStoredAuditLogs();
+        logs.unshift({
+          id: `log-${Date.now()}`,
+          eventId: match.id,
+          action: 'EVENT_SUBMITTED',
+          actorName: match.organizerName,
+          actorRole: 'FACULTY',
+          details: `Draft "${match.title}" submitted to HOD queue.`,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('campusflow_audit_logs', JSON.stringify(logs));
       }
-      return jsonRes({ success: true });
+      return jsonRes({ success: true, event: match });
     }
 
     // 9. Event review
@@ -271,12 +329,38 @@ if (typeof window !== 'undefined') {
         match.status = body.action === 'APPROVED' ? 'PUBLISHED' : body.action === 'CHANGES_REQUESTED' ? 'CHANGES_REQUESTED' : 'REJECTED';
         match.digitalSignatureHash = body.action === 'APPROVED' ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}` : undefined;
         match.hodReviewerName = 'Head of Department (CSBS & IoT)';
-        match.hodReviewComment = body.comment || 'Reviewed and digitally signed.';
+        match.hodReviewComment = body.comment || body.reason || 'Reviewed and digitally signed.';
         if (body.action === 'APPROVED') {
           match.publishedAt = new Date().toISOString();
         }
         match.updatedAt = new Date().toISOString();
         saveStoredEvents(events);
+
+        const logs = getStoredAuditLogs();
+        logs.unshift({
+          id: `log-${Date.now()}`,
+          eventId: match.id,
+          action: body.action === 'APPROVED' ? 'EVENT_APPROVED' : body.action === 'CHANGES_REQUESTED' ? 'EVENT_CHANGES_REQUESTED' : 'EVENT_REJECTED',
+          actorName: 'Head of Department (CSBS & IoT)',
+          actorRole: 'HOD',
+          details: `Event "${match.title}" status changed to ${match.status}. Reason: ${match.hodReviewComment}`,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('campusflow_audit_logs', JSON.stringify(logs));
+
+        const notifs = getStoredNotifications();
+        notifs.unshift({
+          id: `notif-${Date.now()}`,
+          userId: match.organizerId,
+          role: 'FACULTY',
+          title: body.action === 'APPROVED' ? 'Event Approved & Published!' : 'HOD Review Decision',
+          message: `"${match.title}" has been ${match.status.toLowerCase()} by HOD.`,
+          type: body.action === 'APPROVED' ? 'success' : 'warning',
+          read: false,
+          createdAt: new Date().toISOString(),
+          eventId: match.id
+        });
+        localStorage.setItem('campusflow_notifications', JSON.stringify(notifs));
       }
       return jsonRes({ success: true, event: match });
     }
@@ -291,7 +375,7 @@ if (typeof window !== 'undefined') {
           match.status = body.action === 'APPROVED' ? 'PUBLISHED' : 'REJECTED';
           match.digitalSignatureHash = body.action === 'APPROVED' ? `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}` : undefined;
           match.hodReviewerName = 'Head of Department (CSBS & IoT)';
-          match.hodReviewComment = body.comment || 'Statutory batch clearance.';
+          match.hodReviewComment = body.comment || body.reason || 'Statutory batch clearance.';
           if (body.action === 'APPROVED') {
             match.publishedAt = new Date().toISOString();
           }
