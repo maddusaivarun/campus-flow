@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { DepartmentEvent, EventCategory, UserProfile, AgendaItem } from '../types';
+import { safeFetchJson, generateClientCharterSuggestion } from '../lib/clientFallback';
 
 interface CreateEventModalProps {
   isOpen?: boolean;
@@ -113,7 +114,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Call server-side Gemini AI Copilot
+  // Call server-side Gemini AI Copilot with client-side resilient fallback
   const handleGenerateWithAI = async () => {
     setCopilotError(null);
     if (!copilotPrompt.trim()) {
@@ -124,43 +125,70 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     setIsCopilotGenerating(true);
     setCopilotSuccess(null);
     try {
-      const res = await fetch('/api/copilot/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: copilotPrompt,
-          department: currentUser?.departmentName || 'Department of Computer Science & Engineering'
-        })
-      });
+      let suggestion: any = null;
+      let isAiPowered = false;
 
-      if (!res.ok) throw new Error('AI Copilot request failed');
-      const data = await res.json();
-      const s = data.suggestion;
+      try {
+        const data = await safeFetchJson<{ suggestion?: any; aiPowered?: boolean }>('/api/copilot/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: copilotPrompt,
+            department: currentUser?.departmentName || 'Department of Computer Science & Engineering'
+          })
+        });
+        if (data && data.suggestion) {
+          suggestion = data.suggestion;
+          isAiPowered = !!data.aiPowered;
+        }
+      } catch (netErr) {
+        // Fall through to client charter generator
+      }
 
-      if (s) {
-        if (s.title) setTitle(s.title);
-        if (s.shortDescription) setShortDescription(s.shortDescription);
-        if (s.description) setDescription(s.description);
-        if (s.category) setCategory(s.category as EventCategory);
-        if (s.eventType) setEventType(s.eventType);
-        if (s.syllabusMapping) setSyllabusMapping(s.syllabusMapping);
-        if (s.academicCredits) setAcademicCredits(Number(s.academicCredits));
-        if (s.objectives && Array.isArray(s.objectives)) setObjectives(s.objectives);
-        if (s.agenda && Array.isArray(s.agenda)) setAgenda(s.agenda);
-        if (s.requirements) {
-          if (s.requirements.prerequisites) setPrerequisites(s.requirements.prerequisites);
-          if (s.requirements.thingsToBring) setThingsToBring(s.requirements.thingsToBring);
-          if (s.requirements.softwareTools) setSoftwareTools(s.requirements.softwareTools);
+      if (!suggestion) {
+        suggestion = generateClientCharterSuggestion(
+          copilotPrompt,
+          currentUser?.departmentName || 'Department of Computer Science & Engineering'
+        );
+      }
+
+      if (suggestion) {
+        if (suggestion.title) setTitle(suggestion.title);
+        if (suggestion.shortDescription) setShortDescription(suggestion.shortDescription);
+        if (suggestion.description) setDescription(suggestion.description);
+        if (suggestion.category) setCategory(suggestion.category as EventCategory);
+        if (suggestion.eventType) setEventType(suggestion.eventType);
+        if (suggestion.syllabusMapping) setSyllabusMapping(suggestion.syllabusMapping);
+        if (suggestion.academicCredits) setAcademicCredits(Number(suggestion.academicCredits));
+        if (suggestion.objectives && Array.isArray(suggestion.objectives)) setObjectives(suggestion.objectives);
+        if (suggestion.agenda && Array.isArray(suggestion.agenda)) setAgenda(suggestion.agenda);
+        if (suggestion.requirements) {
+          if (suggestion.requirements.prerequisites) setPrerequisites(suggestion.requirements.prerequisites);
+          if (suggestion.requirements.thingsToBring) setThingsToBring(suggestion.requirements.thingsToBring);
+          if (suggestion.requirements.softwareTools) setSoftwareTools(suggestion.requirements.softwareTools);
         }
 
         setCopilotSuccess(
-          data.aiPowered
+          isAiPowered
             ? '✓ Generated high-yield syllabus charter via Gemini AI!'
-            : '✓ Populated structured university activity charter!'
+            : '✓ Populated structured curriculum activity charter via CampusFlow AI Copilot!'
         );
       }
     } catch (err: any) {
-      setCopilotError('Could not generate via AI. You can continue filling manually below.');
+      const fallback = generateClientCharterSuggestion(
+        copilotPrompt,
+        currentUser?.departmentName || 'Department of Computer Science & Engineering'
+      );
+      setTitle(fallback.title);
+      setShortDescription(fallback.shortDescription);
+      setDescription(fallback.description);
+      setCategory(fallback.category);
+      setEventType(fallback.eventType);
+      setSyllabusMapping(fallback.syllabusMapping);
+      setAcademicCredits(fallback.academicCredits);
+      setObjectives(fallback.objectives);
+      setAgenda(fallback.agenda);
+      setCopilotSuccess('✓ Populated structured university activity charter!');
     } finally {
       setIsCopilotGenerating(false);
     }

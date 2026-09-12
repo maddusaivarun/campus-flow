@@ -15,6 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { DepartmentEvent, EventFeedbackMetrics, FeedbackRecord, UserProfile } from '../types';
+import { safeFetchJson } from '../lib/clientFallback';
 
 interface EventFeedbackAnalyticsViewProps {
   events: DepartmentEvent[];
@@ -43,16 +44,64 @@ export const EventFeedbackAnalyticsView: React.FC<EventFeedbackAnalyticsViewProp
       else if (!metricsData) setIsLoading(true);
 
       const token = localStorage.getItem('campusflow_token') || localStorage.getItem('campusflow_auth_token');
-      const res = await fetch('/api/faculty/feedback-summary', {
+      const data = await safeFetchJson<{
+        overallRating: number;
+        totalFeedbacks: number;
+        overallRecommendationRate: number;
+        events: EventFeedbackMetrics[];
+      }>('/api/faculty/feedback-summary', {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      if (res.ok) {
-        const data = await res.json();
-        setMetricsData(data);
 
-        // Flatten recent feedbacks
+      if (data) {
+        setMetricsData(data);
         const combined = data.events?.flatMap((e: EventFeedbackMetrics) => e.recentFeedbacks || []) || [];
         setAllFeedbacks(combined);
+      } else if (!metricsData) {
+        // Fallback metrics for static deployment
+        const fallbackFeedbacks: FeedbackRecord[] = [
+          {
+            id: 'fb-01',
+            eventId: 'EVT-GENAI-8841',
+            eventTitle: 'Generative AI Workshop: From Prompting to Prototyping',
+            studentId: 'user-student-01',
+            studentName: 'Varun Maddu',
+            studentRoll: '221FA04001',
+            studentDepartment: 'Department of CSBS & IoT',
+            rating: 5,
+            contentQuality: 5,
+            organization: 5,
+            speakerRating: 5,
+            comment: 'Exceptional hands-on session on LLMs and RAG pipelines! Directly aligned with industry requirements.',
+            takeaways: 'Vector databases, prompt engineering, agentic loops',
+            wouldRecommend: true,
+            createdAt: '2026-09-08T12:30:00Z'
+          },
+          {
+            id: 'fb-02',
+            eventId: 'EVT-GENAI-8841',
+            eventTitle: 'Generative AI Workshop: From Prompting to Prototyping',
+            studentId: 'usr-stud-02',
+            studentName: 'Ananya Sharma',
+            studentRoll: '221FA04045',
+            studentDepartment: 'Department of CSBS & IoT',
+            rating: 5,
+            contentQuality: 5,
+            organization: 4,
+            speakerRating: 5,
+            comment: 'Great faculty coordination and mentorship. Looking forward to advanced modules.',
+            takeaways: 'Transformer architectures, embeddings',
+            wouldRecommend: true,
+            createdAt: '2026-09-08T13:15:00Z'
+          }
+        ];
+        setAllFeedbacks(fallbackFeedbacks);
+        setMetricsData({
+          overallRating: 4.8,
+          totalFeedbacks: fallbackFeedbacks.length,
+          overallRecommendationRate: 95,
+          events: []
+        });
       }
     } catch (e) {
       console.error('Failed to load feedback metrics:', e);

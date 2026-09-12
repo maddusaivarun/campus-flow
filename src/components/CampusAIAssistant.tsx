@@ -16,6 +16,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { UserProfile, DepartmentEvent } from '../types';
+import { safeFetchJson, generateClientAssistantReply } from '../lib/clientFallback';
 
 interface Message {
   id: string;
@@ -24,7 +25,7 @@ interface Message {
   timestamp: string;
   actionSuggestion?: {
     label: string;
-    targetView: 'catalog' | 'passes' | 'calendar' | 'hod' | 'profile';
+    targetView: 'catalog' | 'calendar' | 'passes' | 'hod' | 'profile';
   };
 }
 
@@ -55,8 +56,10 @@ export const CampusAIAssistant: React.FC<CampusAIAssistantProps> = ({
       id: 'init-1',
       sender: 'assistant',
       text: `Hello ${
-        currentUser?.name ? currentUser.name.split(' ')[0] : 'there'
-      }! 👋 I'm **CampusFlow AI**, your official Vignan University campus assistant.\n\nI have complete real-time knowledge of **all portal pages** and **all university events with live countdown timers**:
+        currentUser?.name ? currentUser.name : 'Vignan University Guest'
+      }! I am your Vignan CampusFlow AI Assistant. I have complete real-time awareness of every event charter, venue, countdown timer, and workflow in this system.
+
+Here is what you can ask or explore:
 • 🏛️ **Public Catalog** — Browse all approved events with live countdown timers (public access without login)
 • 📅 **Events Calendar** — Visual monthly calendar with export to Google Calendar & Outlook
 • 🎫 **My Registrations** — View confirmed passes, trigger **"Print Admit Slip"** for browser printing, or download PNG
@@ -98,26 +101,36 @@ Ask me anything about events, schedules, countdown timers, venues, speakers, or 
     setIsTyping(true);
 
     try {
-      const token = localStorage.getItem('campusflow_token') || localStorage.getItem('campusflow_auth_token');
-      const res = await fetch('/api/assistant/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          message: query,
-          activeView,
-          currentEvents: events,
-          history: messages.slice(-6).map((m) => ({
-            role: m.sender,
-            content: m.text
-          }))
-        })
-      });
+      let replyText = '';
+      try {
+        const token = localStorage.getItem('campusflow_token') || localStorage.getItem('campusflow_auth_token');
+        const data = await safeFetchJson<{ reply?: string }>('/api/assistant/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            message: query,
+            activeView,
+            currentEvents: events,
+            history: messages.slice(-6).map((m) => ({
+              role: m.sender,
+              content: m.text
+            }))
+          })
+        });
 
-      const data = await res.json();
-      const replyText = data.reply || 'I am ready to help with any university events, admit slips, or portal pages.';
+        if (data && data.reply) {
+          replyText = data.reply;
+        }
+      } catch (netErr) {
+        // Fall through to client assistant generator
+      }
+
+      if (!replyText) {
+        replyText = generateClientAssistantReply(query, events, activeView);
+      }
 
       // Determine smart quick action suggestion
       let actionSuggestion: Message['actionSuggestion'] = undefined;
@@ -144,12 +157,13 @@ Ask me anything about events, schedules, countdown timers, venues, speakers, or 
 
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
+      const fallbackText = generateClientAssistantReply(query, events, activeView);
       setMessages((prev) => [
         ...prev,
         {
-          id: `msg-err-${Date.now()}`,
+          id: `msg-bot-${Date.now()}`,
           sender: 'assistant',
-          text: 'I encountered a temporary connection glitch. You can still navigate between the Public Catalog, Events Calendar, My Passes, and Faculty Studio directly from the top navigation!',
+          text: fallbackText,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
