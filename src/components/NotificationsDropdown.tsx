@@ -15,6 +15,7 @@ interface NotificationsDropdownProps {
   onClose: () => void;
   notifications: SystemNotification[];
   onMarkAllRead: () => void;
+  onMarkRead?: (notificationId: string) => void;
   onSelectEventId?: (eventId: string) => void;
 }
 
@@ -23,6 +24,7 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
   onClose,
   notifications,
   onMarkAllRead,
+  onMarkRead,
   onSelectEventId
 }) => {
   if (!isOpen) return null;
@@ -85,6 +87,9 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
               <div
                 key={n.id}
                 onClick={() => {
+                  if (onMarkRead) {
+                    onMarkRead(n.id);
+                  }
                   if (n.eventId && onSelectEventId) {
                     onSelectEventId(n.eventId);
                   }

@@ -80,22 +80,34 @@ if (typeof window !== 'undefined') {
       // Attempt real server fetch first (in case running on Render, Railway, or local Node dev server)
       const originalRes = await originalFetch(input, init);
 
-      // Check if the response is actual JSON from a real backend
-      const contentType = originalRes.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        return originalRes;
-      }
+      // If status is 404 or 405 (Method Not Allowed) or 500+, the host/server doesn't support this endpoint/method.
+      // E.g., Netlify returns 405 "Method not allowed." on POST/PUT requests to static paths.
+      if (originalRes.status === 404 || originalRes.status === 405 || originalRes.status >= 500) {
+        // Intercept and handle in-browser
+      } else {
+        const contentType = originalRes.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          return originalRes;
+        }
 
-      // If status is 200 or 404 but Content-Type is text/html (Netlify sending index.html),
-      // clone and check body text to avoid crashing res.json()
-      const clone = originalRes.clone();
-      const text = await clone.text();
-      if (!text.trim().startsWith('<')) {
-        // Not HTML, let original response pass
-        return originalRes;
-      }
+        const clone = originalRes.clone();
+        const text = await clone.text();
+        // Check if text is plain "Method not allowed.", HTML DOCTYPE, or Express 404/405
+        const isErrorText =
+          text.trim().startsWith('<') ||
+          text.includes('Method not allowed') ||
+          text.includes('Cannot POST') ||
+          text.includes('Cannot PUT') ||
+          text.includes('Cannot DELETE');
 
-      // It is HTML from Netlify's SPA redirect! Intercept and handle in-browser.
+        if (!isErrorText) {
+          try {
+            JSON.parse(text);
+            return originalRes;
+          } catch {}
+        }
+      }
+      // Fall through to in-browser dispatcher
     } catch (netErr) {
       // Network failure, handle in-browser
     }
@@ -141,8 +153,8 @@ if (typeof window !== 'undefined') {
       return jsonRes({ user: DEMO_USERS.public });
     }
 
-    // 3. Auth login
-    if (pathname === '/api/auth/login') {
+    // 3. Auth login / signin
+    if (pathname === '/api/auth/login' || pathname === '/api/auth/signin') {
       const email = (body.email || '').toLowerCase();
       const role = (body.role || 'STUDENT').toUpperCase();
       let matchedUser: UserProfile = DEMO_USERS.student;
@@ -167,8 +179,8 @@ if (typeof window !== 'undefined') {
       });
     }
 
-    // 4. Auth signup
-    if (pathname === '/api/auth/signup') {
+    // 4. Auth signup / register
+    if (pathname === '/api/auth/signup' || pathname === '/api/auth/register') {
       const newUser: UserProfile = {
         id: `user-${Date.now()}`,
         name: body.name || 'Campus Student',
@@ -186,7 +198,7 @@ if (typeof window !== 'undefined') {
     }
 
     // 5. Auth profile
-    if (pathname === '/api/auth/profile' && (method === 'PUT' || method === 'POST')) {
+    if (pathname === '/api/auth/profile' && (method === 'PUT' || method === 'POST' || method === 'PATCH')) {
       const savedUser = localStorage.getItem('campusflow_custom_user');
       let current = savedUser ? JSON.parse(savedUser) : DEMO_USERS.student;
       current = { ...current, ...body };
@@ -413,6 +425,16 @@ if (typeof window !== 'undefined') {
       const target = events.find((e) => e.id === eventId);
       const regId = `VUG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
+      // Use active user from localStorage if logged in
+      let student = DEMO_USERS.student;
+      try {
+        const saved = localStorage.getItem('campusflow_custom_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.name) student = parsed;
+        }
+      } catch {}
+
       const newReg: RegistrationRecord = {
         id: `reg-${Date.now()}`,
         registrationId: regId,
@@ -420,13 +442,13 @@ if (typeof window !== 'undefined') {
         eventTitle: target?.title || 'Department Workshop',
         eventDate: target?.date || '2026-09-24',
         eventVenue: target?.venue || 'Campus Auditorium',
-        studentId: 'user-student-01',
-        studentName: 'Varun Maddu',
-        studentRoll: '221FA04001',
-        studentEmail: 'student.varun@vignan.ac.in',
-        studentDepartment: 'Department of CSBS & IoT',
+        studentId: student.id || 'user-student-01',
+        studentName: student.name || 'Varun Maddu',
+        studentRoll: student.identifier || '221FA04001',
+        studentEmail: student.email || 'student.varun@vignan.ac.in',
+        studentDepartment: student.departmentName || 'Department of CSBS & IoT',
         seatZone: 'General Admission Zone A',
-        qrToken: `VUG-QR-${regId}:user-student-01`,
+        qrToken: `VUG-QR-${regId}:${student.id || 'user-student-01'}`,
         registeredAt: new Date().toISOString(),
         status: 'CONFIRMED',
         checkedIn: body.markAttendanceImmediately ?? true,
@@ -518,7 +540,14 @@ if (typeof window !== 'undefined') {
       });
     }
 
-    // 19. Notifications
+    // 19. Mark notifications as read
+    if (pathname === '/api/notifications/read' && method === 'POST') {
+      const notifs = getStoredNotifications().map((n) => ({ ...n, read: true }));
+      localStorage.setItem('campusflow_notifications', JSON.stringify(notifs));
+      return jsonRes({ success: true, notifications: notifs, unreadCount: 0 });
+    }
+
+    // 19b. Get notifications
     if (pathname === '/api/notifications') {
       return jsonRes({ notifications: getStoredNotifications() });
     }
@@ -556,11 +585,22 @@ if (typeof window !== 'undefined') {
 
     // 22. Faculty feedback summary
     if (pathname === '/api/faculty/feedback-summary') {
+      const events = getStoredEvents();
       return jsonRes({
         overallRating: 4.8,
         totalFeedbacks: 14,
         overallRecommendationRate: 96,
-        events: []
+        events: events.map((e) => ({
+          eventId: e.id,
+          eventTitle: e.title,
+          averageRating: 4.8,
+          recommendationRate: 95,
+          totalResponses: 14,
+          contentRating: 4.9,
+          organizationRating: 4.7,
+          speakerRating: 4.9,
+          recentFeedbacks: []
+        }))
       });
     }
 

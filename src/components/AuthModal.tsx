@@ -95,20 +95,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Authentication failed. Please check your credentials.');
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        // In case of non-JSON response
+      }
+
+      if (!res.ok || !data) {
+        throw new Error(data?.error || 'Authentication failed. Please check your credentials.');
       }
 
       // Store in localStorage for production persistent session
-      if (data.token) {
-        localStorage.setItem('campusflow_token', data.token);
-      }
+      const token = data.token || `client-token-${Date.now()}`;
+      localStorage.setItem('campusflow_token', token);
+
       if (data.user) {
         localStorage.setItem('campusflow_custom_user', JSON.stringify(data.user));
+        onAuthSuccess(data.user, token);
       }
 
-      onAuthSuccess(data.user, data.token);
       onClose();
     } catch (err: any) {
       setErrorMessage(err.message || 'An error occurred during authentication.');

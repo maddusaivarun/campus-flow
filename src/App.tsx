@@ -393,10 +393,18 @@ export function App() {
         checkedIn: options?.markAttendanceImmediately ?? true,
         checkedInAt: (options?.markAttendanceImmediately ?? true) ? new Date().toISOString() : undefined
       };
-      setStudentRegistrations((prev) => [regRecord, ...prev]);
-      setAllParticipants((prev) => [regRecord, ...prev]);
-      setEvents((prev) =>
-        prev.map((e) =>
+      setStudentRegistrations((prev) => {
+        const next = [regRecord, ...prev];
+        localStorage.setItem('campusflow_registrations', JSON.stringify(next));
+        return next;
+      });
+      setAllParticipants((prev) => {
+        const next = [regRecord, ...prev];
+        localStorage.setItem('campusflow_participants', JSON.stringify(next));
+        return next;
+      });
+      setEvents((prev) => {
+        const next = prev.map((e) =>
           e.id === eventId
             ? {
                 ...e,
@@ -407,8 +415,10 @@ export function App() {
                     : (e.attendanceCount || 0)
               }
             : e
-        )
-      );
+        );
+        localStorage.setItem('campusflow_events', JSON.stringify(next));
+        return next;
+      });
     }
 
     if (regRecord.checkedIn) {
@@ -440,9 +450,21 @@ export function App() {
       });
     } catch {}
 
-    setEvents((prev) =>
-      prev.map((e) => (e.id === eventId ? { ...e, attendanceCount: (e.attendanceCount || 0) + 1 } : e))
-    );
+    setEvents((prev) => {
+      const next = prev.map((e) => (e.id === eventId ? { ...e, attendanceCount: (e.attendanceCount || 0) + 1 } : e));
+      localStorage.setItem('campusflow_events', JSON.stringify(next));
+      return next;
+    });
+    setStudentRegistrations((prev) => {
+      const next = prev.map((r) => r.eventId === eventId ? { ...r, checkedIn: true, checkedInAt: new Date().toISOString() } : r);
+      localStorage.setItem('campusflow_registrations', JSON.stringify(next));
+      return next;
+    });
+    setAllParticipants((prev) => {
+      const next = prev.map((r) => r.eventId === eventId ? { ...r, checkedIn: true, checkedInAt: new Date().toISOString() } : r);
+      localStorage.setItem('campusflow_participants', JSON.stringify(next));
+      return next;
+    });
     showToast('✓ Real-time gate attendance confirmed present!');
   };
 
@@ -456,15 +478,25 @@ export function App() {
       });
     } catch {}
 
-    setStudentRegistrations((prev) => prev.filter((r) => r.eventId !== eventId));
-    setAllParticipants((prev) => prev.filter((r) => r.eventId !== eventId));
-    setEvents((prev) =>
-      prev.map((e) =>
+    setStudentRegistrations((prev) => {
+      const next = prev.filter((r) => r.eventId !== eventId);
+      localStorage.setItem('campusflow_registrations', JSON.stringify(next));
+      return next;
+    });
+    setAllParticipants((prev) => {
+      const next = prev.filter((r) => r.eventId !== eventId);
+      localStorage.setItem('campusflow_participants', JSON.stringify(next));
+      return next;
+    });
+    setEvents((prev) => {
+      const next = prev.map((e) =>
         e.id === eventId
           ? { ...e, registeredCount: Math.max(0, (e.registeredCount || 0) - 1) }
           : e
-      )
-    );
+      );
+      localStorage.setItem('campusflow_events', JSON.stringify(next));
+      return next;
+    });
     showToast('Registration cancelled. Seat released.', 'info');
   };
 
@@ -824,15 +856,25 @@ export function App() {
       checkedIn: true,
       checkedInAt: new Date().toISOString()
     };
-    setAllParticipants((prev) => prev.map((r) => (r.id === updatedReg.id ? updatedReg : r)));
-    setStudentRegistrations((prev) => prev.map((r) => (r.id === updatedReg.id ? updatedReg : r)));
-    setEvents((prev) =>
-      prev.map((e) =>
+    setAllParticipants((prev) => {
+      const next = prev.map((r) => (r.id === updatedReg.id ? updatedReg : r));
+      localStorage.setItem('campusflow_participants', JSON.stringify(next));
+      return next;
+    });
+    setStudentRegistrations((prev) => {
+      const next = prev.map((r) => (r.id === updatedReg.id ? updatedReg : r));
+      localStorage.setItem('campusflow_registrations', JSON.stringify(next));
+      return next;
+    });
+    setEvents((prev) => {
+      const next = prev.map((e) =>
         e.id === updatedReg.eventId
           ? { ...e, attendanceCount: (e.attendanceCount || 0) + 1 }
           : e
-      )
-    );
+      );
+      localStorage.setItem('campusflow_events', JSON.stringify(next));
+      return next;
+    });
     return {
       success: true,
       message: `Admitted: ${updatedReg.studentName} (${updatedReg.studentRoll})`,
@@ -925,8 +967,23 @@ export function App() {
               setIsNotificationsOpen(false);
             }
           }}
+          onMarkRead={async (notificationId: string) => {
+            setNotifications((prev) => {
+              const updated = prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n));
+              localStorage.setItem('campusflow_notifications', JSON.stringify(updated));
+              return updated;
+            });
+            const headers = getAuthHeaders();
+            try {
+              await fetch(`/api/notifications/${notificationId}/read`, { method: 'POST', headers });
+            } catch {}
+          }}
           onMarkAllRead={async () => {
-            setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+            setNotifications((prev) => {
+              const updated = prev.map((n) => ({ ...n, read: true }));
+              localStorage.setItem('campusflow_notifications', JSON.stringify(updated));
+              return updated;
+            });
             const headers = getAuthHeaders();
             try {
               const res = await fetch('/api/notifications/read', { method: 'POST', headers });
@@ -934,12 +991,12 @@ export function App() {
                 const data = await res.json();
                 if (data.notifications) {
                   setNotifications(data.notifications);
+                  localStorage.setItem('campusflow_notifications', JSON.stringify(data.notifications));
                 }
               }
             } catch (err) {
               console.error('Failed to mark notifications read:', err);
             }
-            await loadData();
           }}
         />
       )}

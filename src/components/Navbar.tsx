@@ -216,11 +216,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1.5 ml-2">
+          <nav className="hidden md:flex items-center gap-1.5 ml-2 overflow-x-auto no-scrollbar py-1">
             {/* Public Catalog */}
             <button
               onClick={() => onSelectTab('discover')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === 'discover'
                   ? 'bg-blue-600 text-white font-semibold shadow-xs'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -233,7 +233,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Events Calendar */}
             <button
               onClick={() => onSelectTab('calendar')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === 'calendar'
                   ? 'bg-blue-600 text-white font-semibold shadow-xs'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -246,7 +246,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* My Registrations & Passes */}
             <button
               onClick={() => onSelectTab('my-passes')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                 activeTab === 'my-passes'
                   ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -260,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {(isFaculty || isHOD) && (
               <button
                 onClick={() => onSelectTab('faculty-studio')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                   activeTab === 'faculty-studio'
                     ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -275,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {(isFaculty || isHOD || currentUser?.role === 'GATE_SECURITY') && (
               <button
                 onClick={() => onSelectTab('participants')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                   activeTab === 'participants'
                     ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-semibold border border-teal-200 dark:border-teal-800'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -290,7 +290,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isHOD && (
               <button
                 onClick={() => onSelectTab('hod-review')}
-                className={`relative px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                className={`shrink-0 relative px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                   activeTab === 'hod-review'
                     ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 font-semibold border border-amber-300 dark:border-amber-700'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -310,7 +310,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {(isHOD || isFaculty) && (
               <button
                 onClick={() => onSelectTab('audit-trail')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                   activeTab === 'audit-trail'
                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -326,7 +326,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {(isHOD || isFaculty) && (
               <button
                 onClick={() => onSelectTab('feedback-analytics')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                className={`shrink-0 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                   activeTab === 'feedback-analytics'
                     ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-800'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -343,7 +343,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="btn-propose-event"
                 onClick={onProposeEvent}
-                className="px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors"
+                className="shrink-0 px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors"
                 title="Draft a new departmental event charter for HOD clearance"
               >
                 <Plus className="w-4 h-4" />

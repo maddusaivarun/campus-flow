@@ -3,6 +3,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import { UserProfile, UserRole, DepartmentEvent } from './src/types';
+import { generateClientAssistantReply } from './src/lib/clientFallback';
 import {
   createUser,
   authenticateUser,
@@ -1106,70 +1107,8 @@ INSTRUCTIONS:
       }
     }
 
-    // Intelligent Fallback Campus Virtual Assistant (Rule & Comprehensive Campus Intelligence)
-    const lower = message.toLowerCase();
-    let reply = '';
-
-    // Check if the query asks about all pages
-    if (lower.includes('all pages') || lower.includes('every page') || lower.includes('pages in this portal') || lower.includes('explain all pages') || lower.includes('what pages')) {
-      reply = `Here is a complete guide to all pages and sections in the Vignan CampusFlow Portal:\n\n` +
-        `• **1. Public Catalog** (\`Public Catalog\` tab): Explore all university-approved events, filter by category (Technical, Hackathon, Seminars), check live countdown timers on every card, and enroll in seats (accessible to public without login).\n` +
-        `• **2. Events Calendar** (\`Calendar\` tab): Monthly visual calendar with event markers, date filtering, live countdowns, and direct sync to Google Calendar, Outlook, and ICS files.\n` +
-        `• **3. My Registrations & Admit Slips** (\`My Registrations\` tab): View confirmed enrollments, launch the **Print Admit Slip** browser print dialog, check live event countdowns, or download high-res PNG cards.\n` +
-        `• **4. HOD Review Queue** (\`HOD Queue\` tab, for HOD): Statutory department clearance hub where the HOD reviews charters, applies cryptographic approval seals, or requests revisions.\n` +
-        `• **5. Propose Event Charter** (\`+ Propose Event\` button): Faculty and HOD can submit new event charters directly for statutory clearance.\n` +
-        `• **6. Profile & Photo Customizer** (Click user avatar or \`Customize Profile\`): Update your display name, title, department, roll number, and upload your profile photo.\n` +
-        `• **7. Real Login Authentication** (\`Portal Sign In\`): Secure authentication for HOD and Faculty, while allowing the Public to browse freely without any login.`;
-    }
-    // Check if query asks about countdowns or timers
-    else if (lower.includes('countdown') || lower.includes('timer') || lower.includes('how long') || lower.includes('starts next') || lower.includes('when does it start')) {
-      const activeEvents = events.filter(e => e.status === 'PUBLISHED');
-      reply = `Here are the active countdown timers for upcoming events on the page:\n\n` +
-        activeEvents.map(e => {
-          const item = eventsSummary.find(s => s.id === e.id);
-          return `• **${e.title}**\n  ⏳ Countdown: **${item?.countdown || 'Scheduled'}**\n  📅 Date: ${e.date} | ⏰ ${e.startTime} - ${e.endTime}\n  📍 Venue: ${e.venue}`;
-        }).join('\n\n') +
-        `\n\nEach event card features a real-time ticking countdown timer showing days, hours, minutes, and seconds!`;
-    }
-    // Check if query matches a specific event title or keyword
-    else if (events.some(e => lower.includes(e.title.toLowerCase()) || e.title.toLowerCase().split(' ').some(word => word.length > 4 && lower.includes(word)))) {
-      const match = events.find(e => lower.includes(e.title.toLowerCase()) || e.title.toLowerCase().split(' ').some(word => word.length > 4 && lower.includes(word)))!;
-      const item = eventsSummary.find(s => s.id === match.id);
-      reply = `Here are the official details for **${match.title}**:\n\n` +
-        `• **Category**: ${match.category}\n` +
-        `• **Status**: ${match.status === 'PUBLISHED' ? '✅ Approved by HOD & Open for Registration' : match.status}\n` +
-        `• **Live Countdown**: ⏳ **${item?.countdown || 'Active on card'}**\n` +
-        `• **Date & Time**: 📅 ${match.date} | ⏰ ${match.startTime} - ${match.endTime}\n` +
-        `• **Venue**: 📍 ${match.venue}\n` +
-        `• **Faculty Coordinator / Speaker**: 👤 ${match.organizerName} (${match.speaker?.name || 'Department Faculty'})\n` +
-        `• **Academic Credits**: 🎓 ${match.academicCredits || 2.0} Credits\n` +
-        `• **Seat Allocation**: 👥 ${match.registeredCount}/${match.capacity} seats filled (${Math.max(0, match.capacity - match.registeredCount)} remaining)\n` +
-        `• **Overview**: ${match.description}\n\n` +
-        `You can find this event in the **Public Catalog** with an active live countdown timer or register your spot!`;
-    }
-    // Check if query asks about events present, upcoming, or on the page
-    else if (lower.includes('event') || lower.includes('workshop') || lower.includes('what is happening') || lower.includes('upcoming') || lower.includes('present') || lower.includes('on the page') || lower.includes('list')) {
-      const openEvents = events.filter(e => e.status === 'PUBLISHED');
-      reply = `There are currently **${openEvents.length} official events** active and present on the page:\n\n` +
-        openEvents.map(e => {
-          const item = eventsSummary.find(s => s.id === e.id);
-          return `• **${e.title}** (${e.category})\n  ⏳ Countdown: **${item?.countdown || 'Scheduled'}**\n  📅 Date: ${e.date} | ⏰ ${e.startTime} - ${e.endTime}\n  📍 Venue: ${e.venue} | 🎓 Credits: ${e.academicCredits || 2.0}\n  👥 Seats: ${e.registeredCount}/${e.capacity} filled (${Math.max(0, e.capacity - e.registeredCount)} remaining)`;
-        }).join('\n\n') +
-        `\n\nYou can click on any event in the **Public Catalog** to view full details or register, or switch to the **Calendar** view!`;
-    } else if (lower.includes('calendar') || lower.includes('add to calendar') || lower.includes('google calendar') || lower.includes('date')) {
-      reply = `You can view all events on the **Events Calendar**! In the top navigation, click the **"Calendar"** tab (or toggle "Calendar View" in the Public Catalog). You can also click **"Add to Calendar"** on any event card to sync it to Google Calendar, Microsoft Outlook, or download an iCal (.ics) file.`;
-    } else if (lower.includes('pass') || lower.includes('ticket') || lower.includes('slip') || lower.includes('admit') || lower.includes('my registration') || lower.includes('cancel') || lower.includes('download') || lower.includes('offline') || lower.includes('png') || lower.includes('print')) {
-      reply = `To access, print, or download your official student registration admit slip:\n• Click **"My Registrations"** in the top navigation bar.\n• Click **"View Admit Slip"** on any registered activity.\n• Click **"Print Admit Slip"** to trigger the browser's clean, printer-friendly print dialog formatted with official Vignan University letterhead!\n• You can also click **"Download Slip (PNG)"** to save a high-resolution admit card graphic.\n• The slip includes your Roll Number, Confirmation ID, seat zone, live countdown timer, and statutory HOD clearance seal.\n• If you cannot attend, click "Cancel Registration" to release your seat for another student.`;
-    } else if (lower.includes('hod') || lower.includes('approval') || lower.includes('review') || lower.includes('publish') || lower.includes('workflow')) {
-      reply = `The Department Governance workflow enforces strict university compliance:\n1. **Faculty Proposes Charter**: Faculty or HOD click "+ Propose Event" in the navigation bar to draft the charter.\n2. **HOD Clearance**: Submitted to the **HOD Review Queue**, where the Head of Department reviews charters, applies cryptographic approval seals, or requests revisions.\n3. **Public Release**: Once approved, events instantly appear in the Public Catalog and Calendar with live countdown timers!`;
-    } else if (lower.includes('profile') || lower.includes('photo') || lower.includes('avatar') || lower.includes('name') || lower.includes('rename') || lower.includes('customize') || lower.includes('save') || lower.includes('saving')) {
-      reply = `You can customize your profile anytime! Click your user pill/avatar in the top navigation bar and choose **"Customize Profile"**:\n• Update your official Name, Academic Designation, and Department.\n• Enter your Institutional ID or Roll Number.\n• Upload a photo directly from your device or select an avatar style.\n• Click **"Save Changes"** — changes are persisted to the university database and browser storage, updating all admit slips, navigation badges, and event charters instantly!`;
-    } else if (lower.includes('login') || lower.includes('signin') || lower.includes('authenticate') || lower.includes('auth') || lower.includes('faculty') || lower.includes('public')) {
-      reply = `The portal supports real multi-role authentication:\n• **Public / Guest**: Can browse the Public Catalog, view event schedules, and check countdowns without logging in.\n• **HOD & Faculty**: Click **"Portal Sign In"** in the top navigation to authenticate with verified institutional credentials or create a real account.\n• **HOD**: Gains access to the Statutory HOD Clearance Queue to review and digitally sign event charters.`;
-    } else {
-      reply = `Hello! I am your Vignan CampusFlow Virtual Assistant. I have complete real-time knowledge of all pages and events in the system:\n• **Live Events & Countdowns**: Ask "What events are on the page?" or "Show countdown timers".\n• **All Pages Guide**: Ask me to "Explain all pages in this portal" for a complete walkthrough.\n• **Print Admit Slips**: Ask how to print or download your official event entry pass.\n• **Profile Customization**: Ask how to change your display name or photo.\n• **HOD Governance**: Ask about HOD review and approval procedures.\n\nHow can I help you today?`;
-    }
-
+    // Intelligent Fallback Campus Virtual Assistant (Comprehensive Campus Intelligence)
+    const reply = generateClientAssistantReply(message, events, activeView);
     return res.json({ reply, aiPowered: false });
   });
 
