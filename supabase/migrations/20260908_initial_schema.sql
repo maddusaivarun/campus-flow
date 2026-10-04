@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     department_name TEXT DEFAULT 'Department of Computer Science & Engineering',
     identifier TEXT, -- Student Roll No (e.g. 221FA04001) or Faculty ID (e.g. VUG-FAC-041)
     phone TEXT,
+    designation TEXT,
     avatar_url TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -309,3 +310,23 @@ CREATE POLICY "Service role full access on feedbacks"
     TO service_role
     USING (true)
     WITH CHECK (true);
+
+-- ==========================================================
+-- SEED INITIAL PROFILES & DEPARTMENTS (Satisfies Foreign Keys)
+-- ==========================================================
+INSERT INTO public.departments (id, name, code)
+VALUES 
+    ('dept-cse', 'Department of Computer Science & Engineering', 'CSE'),
+    ('dept-csbsiot-vignan', 'Department of CSBS & IoT', 'CSBS-IOT'),
+    ('dept-it', 'Department of Information Technology', 'IT'),
+    ('dept-ece', 'Department of Electronics & Communication Engineering', 'ECE')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.profiles (id, full_name, email, role, department_id, department_name, identifier, phone, designation)
+VALUES 
+    ('user-hod-01', 'Head of Department (CSBS & IoT)', 'hod.csbsiot@vignan.ac.in', 'HOD', 'dept-csbsiot-vignan', 'Department of CSBS & IoT', 'VUG-HOD-01', '+91 98480 22331', 'Head of Department (CSBS & IoT) • Statutory Review Authority'),
+    ('user-faculty-01', 'Faculty Coordinator (CSBS & IoT)', 'faculty.csbsiot@vignan.ac.in', 'FACULTY', 'dept-csbsiot-vignan', 'Department of CSBS & IoT', 'VUG-FAC-041', '+91 94401 55662', 'Faculty Coordinator • Dept. of CSBS & IoT'),
+    ('user-student-01', 'Varun Maddu', 'student.varun@vignan.ac.in', 'STUDENT', 'dept-csbsiot-vignan', 'Department of CSBS & IoT', '221FA04001', '+91 99887 76655', '3rd Year B.Tech CSBS & IoT (Roll: 221FA04001)'),
+    ('user-public-01', 'University Guest / Visitor', 'visitor@vignan.ac.in', 'PUBLIC', 'dept-all', 'Vignan University Campus', 'VUG-VISITOR', NULL, 'Prospective Student / Campus Visitor')
+ON CONFLICT DO NOTHING;
+

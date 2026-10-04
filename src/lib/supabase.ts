@@ -7,20 +7,18 @@ import {
   SystemNotification
 } from '../types';
 
-// Environment variables
-const rawSupabaseUrl =
-  process.env.SUPABASE_URL ||
-  process.env.VITE_SUPABASE_URL ||
-  '';
+// Dynamic environment variable getters
+export function getSupabaseUrl(): string {
+  return (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+}
 
-const rawServiceRoleKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  '';
+export function getServiceRoleKey(): string {
+  return (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+}
 
-const rawAnonKey =
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.VITE_SUPABASE_ANON_KEY ||
-  '';
+export function getAnonKey(): string {
+  return (process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+}
 
 /**
  * Validate that a URL is a valid HTTP/HTTPS URL and not a dummy placeholder
@@ -48,8 +46,8 @@ function isValidKey(key: string): boolean {
 
 export const isSupabaseConfigured = (): boolean => {
   return (
-    isValidHttpUrl(rawSupabaseUrl) &&
-    (isValidKey(rawServiceRoleKey) || isValidKey(rawAnonKey))
+    isValidHttpUrl(getSupabaseUrl()) &&
+    (isValidKey(getServiceRoleKey()) || isValidKey(getAnonKey()))
   );
 };
 
@@ -67,10 +65,13 @@ export function getSupabaseAdmin(): SupabaseClient | null {
     return cachedAdminClient;
   }
 
-  const keyToUse = isValidKey(rawServiceRoleKey) ? rawServiceRoleKey : rawAnonKey;
+  const supabaseUrl = getSupabaseUrl();
+  const serviceKey = getServiceRoleKey();
+  const anonKey = getAnonKey();
+  const keyToUse = isValidKey(serviceKey) ? serviceKey : anonKey;
 
   try {
-    cachedAdminClient = createClient(rawSupabaseUrl.trim(), keyToUse.trim(), {
+    cachedAdminClient = createClient(supabaseUrl, keyToUse, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
@@ -78,16 +79,16 @@ export function getSupabaseAdmin(): SupabaseClient | null {
       global: {
         headers: {
           'x-client-info': 'campusflow-vignan-backend/1.0.0',
-          'apikey': keyToUse.trim(),
-          'Authorization': `Bearer ${keyToUse.trim()}`,
-          'role': isValidKey(rawServiceRoleKey) ? 'service_role' : 'anon'
+          'apikey': keyToUse,
+          'Authorization': `Bearer ${keyToUse}`,
+          'role': isValidKey(serviceKey) ? 'service_role' : 'anon'
         }
       }
     });
 
     console.log(
-      `[Supabase] Initialized admin client -> ${new URL(rawSupabaseUrl).hostname} (Role: ${
-        isValidKey(rawServiceRoleKey) ? 'service_role' : 'anon'
+      `[Supabase] Initialized admin client -> ${new URL(supabaseUrl).hostname} (Role: ${
+        isValidKey(serviceKey) ? 'service_role' : 'anon'
       })`
     );
 
@@ -106,10 +107,13 @@ export function getScopedSupabaseClient(userToken?: string, role: string = 'auth
     return null;
   }
 
-  const keyToUse = isValidKey(rawAnonKey) ? rawAnonKey : rawServiceRoleKey;
+  const anonKey = getAnonKey();
+  const serviceRoleKey = getServiceRoleKey();
+  const supabaseUrl = getSupabaseUrl();
+  const keyToUse = isValidKey(anonKey) ? anonKey : serviceRoleKey;
 
   try {
-    return createClient(rawSupabaseUrl.trim(), keyToUse.trim(), {
+    return createClient(supabaseUrl.trim(), keyToUse.trim(), {
       auth: {
         autoRefreshToken: false,
         persistSession: false
@@ -139,9 +143,29 @@ export async function supabaseSyncEvent(event: DepartmentEvent, actorRole?: stri
   }
 
   try {
+    const organizerId = event.organizerId || 'user-faculty-01';
+
+    // Ensure foreign key: department must exist in public.departments
+    if (event.departmentId) {
+      await supabase.from('departments').upsert({
+        id: event.departmentId,
+        name: event.departmentName || 'Department of Computer Science & Engineering',
+        code: event.departmentId.replace('dept-', '').toUpperCase()
+      }, { onConflict: 'id' });
+    }
+
+    // Ensure foreign key: organizer profile must exist in public.profiles
+    await supabase.from('profiles').upsert({
+      id: organizerId,
+      full_name: event.organizerName || 'Faculty Coordinator',
+      email: (event.organizerContact && event.organizerContact.includes('@')) ? event.organizerContact : `${organizerId}@vignan.ac.in`,
+      role: actorRole || 'FACULTY',
+      department_name: event.departmentName || 'Department of Computer Science & Engineering'
+    }, { onConflict: 'id' });
+
     const payload = {
       id: event.id,
-      organizer_id: event.organizerId || 'user-faculty-01',
+      organizer_id: organizerId,
       title: event.title,
       slug: event.id.toLowerCase(),
       short_description: event.shortDescription || event.title,
@@ -253,29 +277,50 @@ export async function supabaseSyncRegistration(registration: RegistrationRecord)
   if (!supabase) return false;
 
   try {
+    // Ensure foreign key: student profile must exist in public.profiles
+    await supabase.from('profiles').upsert({
+      id: registration.studentId,
+      full_name: registration.studentName,
+      email: registration.studentEmail,
+      role: 'STUDENT',
+      department_name: registration.studentDepartment || 'Department of Computer Science & Engineering',
+      identifier: registration.studentRoll
+    }, { onConflict: 'id' });
+
     const dbStatus = registration.checkedIn
       ? 'CHECKED_IN'
       : registration.status === 'CANCELLED'
       ? 'CANCELLED'
       : 'CONFIRMED';
 
+    // Check if registration already exists by registration_id OR (event_id, student_id)
+    const { data: existingReg } = await supabase
+      .from('event_registrations')
+      .select('id, registration_id')
+      .or(`registration_id.eq.${registration.registrationId},and(event_id.eq.${registration.eventId},student_id.eq.${registration.studentId})`)
+      .limit(1)
+      .maybeSingle();
+
+    const recordId = existingReg?.id || registration.id;
+    const finalRegId = existingReg?.registration_id || registration.registrationId;
+
     const { error } = await supabase.from('event_registrations').upsert(
       {
-        id: registration.id,
+        id: recordId,
         event_id: registration.eventId,
         student_id: registration.studentId,
-        registration_id: registration.registrationId,
+        registration_id: finalRegId,
         student_name: registration.studentName,
         student_roll: registration.studentRoll,
         student_email: registration.studentEmail,
         student_department: registration.studentDepartment,
         seat_zone: registration.seatZone || 'General Admission Zone A',
-        qr_code_data: registration.qrToken || registration.registrationId,
+        qr_code_data: registration.qrToken || finalRegId,
         registration_status: dbStatus,
         registered_at: registration.registeredAt,
         checked_in_at: registration.checkedInAt || null
       },
-      { onConflict: 'registration_id' }
+      { onConflict: 'id' }
     );
 
     if (error) {
@@ -284,7 +329,7 @@ export async function supabaseSyncRegistration(registration: RegistrationRecord)
     }
 
     console.log(
-      `[Supabase] Participant registration ${registration.registrationId} synced to Supabase (Status: ${dbStatus})`
+      `[Supabase] Participant registration ${finalRegId} synced to Supabase (Status: ${dbStatus})`
     );
     return true;
   } catch (err: any) {
@@ -470,14 +515,19 @@ export async function getDatabaseStatus(): Promise<{
   message: string;
 }> {
   const configured = isSupabaseConfigured();
+  const supabaseUrl = getSupabaseUrl();
+  const serviceRoleKey = getServiceRoleKey();
+  const anonKey = getAnonKey();
+  const host = isValidHttpUrl(supabaseUrl) ? new URL(supabaseUrl).hostname : null;
+
   if (!configured) {
     return {
       supabaseConfigured: false,
       supabaseConnected: false,
       provider: 'Resilient Hybrid Database',
       databaseUrlHost: null,
-      hasServiceRoleKey: isValidKey(rawServiceRoleKey),
-      hasAnonKey: isValidKey(rawAnonKey),
+      hasServiceRoleKey: isValidKey(serviceRoleKey),
+      hasAnonKey: isValidKey(anonKey),
       tablesVerified: ['events', 'profiles', 'event_registrations', 'audit_logs', 'notifications'],
       message: 'Operating with production JSON engine with Supabase dual-sync ready. To connect Supabase, supply SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
     };
@@ -489,9 +539,9 @@ export async function getDatabaseStatus(): Promise<{
       supabaseConfigured: true,
       supabaseConnected: false,
       provider: 'Resilient Hybrid Database',
-      databaseUrlHost: rawSupabaseUrl ? new URL(rawSupabaseUrl).hostname : null,
-      hasServiceRoleKey: isValidKey(rawServiceRoleKey),
-      hasAnonKey: isValidKey(rawAnonKey),
+      databaseUrlHost: host,
+      hasServiceRoleKey: isValidKey(serviceRoleKey),
+      hasAnonKey: isValidKey(anonKey),
       tablesVerified: [],
       message: 'Supabase URL configured but client could not be instantiated.'
     };
@@ -507,9 +557,9 @@ export async function getDatabaseStatus(): Promise<{
         supabaseConfigured: true,
         supabaseConnected: false,
         provider: 'Resilient Hybrid Database',
-        databaseUrlHost: new URL(rawSupabaseUrl).hostname,
-        hasServiceRoleKey: isValidKey(rawServiceRoleKey),
-        hasAnonKey: isValidKey(rawAnonKey),
+        databaseUrlHost: host,
+        hasServiceRoleKey: isValidKey(serviceRoleKey),
+        hasAnonKey: isValidKey(anonKey),
         latencyMs: latency,
         tablesVerified: [],
         message: `Connected to Supabase endpoint, schema check response: ${error.message}`
@@ -520,9 +570,9 @@ export async function getDatabaseStatus(): Promise<{
       supabaseConfigured: true,
       supabaseConnected: true,
       provider: 'Supabase PostgreSQL',
-      databaseUrlHost: new URL(rawSupabaseUrl).hostname,
-      hasServiceRoleKey: isValidKey(rawServiceRoleKey),
-      hasAnonKey: isValidKey(rawAnonKey),
+      databaseUrlHost: host,
+      hasServiceRoleKey: isValidKey(serviceRoleKey),
+      hasAnonKey: isValidKey(anonKey),
       latencyMs: latency,
       tablesVerified: ['events', 'profiles', 'event_registrations', 'event_approvals', 'audit_logs'],
       message: 'Active communication with Supabase database with service_role privileges.'
@@ -532,9 +582,9 @@ export async function getDatabaseStatus(): Promise<{
       supabaseConfigured: true,
       supabaseConnected: false,
       provider: 'Resilient Hybrid Database',
-      databaseUrlHost: rawSupabaseUrl ? new URL(rawSupabaseUrl).hostname : null,
-      hasServiceRoleKey: isValidKey(rawServiceRoleKey),
-      hasAnonKey: isValidKey(rawAnonKey),
+      databaseUrlHost: host,
+      hasServiceRoleKey: isValidKey(serviceRoleKey),
+      hasAnonKey: isValidKey(anonKey),
       tablesVerified: [],
       message: `Network check: ${err.message || 'Connecting...'}`
     };

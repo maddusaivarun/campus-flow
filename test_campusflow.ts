@@ -10,8 +10,13 @@ import {
   authenticateUser,
   getUserById,
   createEvent,
+  deleteEvent,
+  cancelRegistration,
   submitEventForApproval,
-  getEventParticipants
+  getEventParticipants,
+  generateUniqueEventId,
+  generateUniqueRegistrationId,
+  generateUniqueRecordId
 } from './src/lib/db';
 import { DEMO_USERS } from './src/data/seedData';
 
@@ -19,6 +24,10 @@ async function runTestSuite() {
   console.log('\n======================================================');
   console.log('CAMPUSFLOW — PRODUCTION TEST SUITE & VERIFICATION');
   console.log('======================================================\n');
+
+  // Reset database to ensure clean, deterministic starting state
+  resetDatabase();
+  console.log('✓ Database reset to clean verified seed state.\n');
 
   // Test 1: Seed database & public events rule
   console.log('[TEST 1] Public Events Discovery:');
@@ -75,6 +84,15 @@ async function runTestSuite() {
   console.log(`    QR Token: ${regResult.registration.qrToken}`);
   console.log(`    Event Registered Count: ${regResult.event.registeredCount}/${regResult.event.capacity}`);
 
+  // Assertion: Duplicate registration must be strictly rejected
+  try {
+    registerStudent(approved.id, authStudent.user);
+    throw new Error('FAIL: Duplicate registration was accepted!');
+  } catch (err: any) {
+    if (!err.message.includes('already registered')) throw err;
+    console.log(`  ✓ Relational Rule Verified: Duplicate registration rejected: "${err.message}"`);
+  }
+
   // Test 5: Real-time Gate QR Check-in
   console.log('\n[TEST 5] Gate QR Check-in Scanner:');
   const checkInResult = checkInParticipant(regResult.registration.registrationId, {
@@ -84,7 +102,7 @@ async function runTestSuite() {
   } as any);
   console.log(`  ✓ Check-in processed: ${checkInResult.message}`);
   console.log(`    Attendance confirmed at: ${checkInResult.registration.checkedInAt}`);
-  console.log(`    Event Attendance Count: ${checkInResult.event.attendanceCount}`);
+  console.log(`    Event Attendance Count: ${checkInResult.event?.attendanceCount}`);
 
   // Test 6: Participant Roster & Export
   console.log('\n[TEST 6] Participant Roster & Roster Privacy:');
@@ -107,8 +125,45 @@ async function runTestSuite() {
   const metrics = getAllFeedbackMetrics();
   console.log(`  ✓ Aggregated Metrics calculated: Overall Rating ${metrics.overallRating}/5.0 from ${metrics.totalFeedbacks} verified review(s).`);
 
+  // Test 8: Relational Consistency, Cancellation & Cascading Deletion
+  console.log('\n[TEST 8] Relational Consistency & Cascading Cleanup:');
+  const testStudent2 = {
+    ...DEMO_USERS.student,
+    id: 'test-student-unique-02',
+    name: 'Pooja Reddy',
+    email: 'pooja.r@vignan.ac.in',
+    identifier: '221FA04099'
+  };
+  const reg2 = registerStudent(approved.id, testStudent2);
+  console.log(`  ✓ Second student registered. Count: ${reg2.event.registeredCount}`);
+  if (reg2.event.registeredCount !== 2) throw new Error('Expected registeredCount to be 2');
+
+  const cancelResult = cancelRegistration(approved.id, testStudent2);
+  console.log(`  ✓ Second student cancelled. New Count: ${cancelResult.event.registeredCount}`);
+  if (cancelResult.event.registeredCount !== 1) throw new Error('Expected registeredCount to revert to 1');
+
+  // Test Cascading Delete on Draft Event
+  const tempDraft = createEvent({
+    title: 'Temporary Draft for Cascade Test',
+    date: '2026-12-01'
+  }, facultyUser);
+  deleteEvent(tempDraft.id, facultyUser);
+  console.log(`  ✓ Cascading deletion cleanly executed for draft: ${tempDraft.id}`);
+
+  // Test 9: ID Entropy & Uniqueness
+  console.log('\n[TEST 9] ID Entropy & Collision Resistance:');
+  const generatedRecordIds = new Set<string>();
+  const dummyStore: Array<{ id: string }> = [];
+  for (let i = 0; i < 100; i++) {
+    const id = generateUniqueRecordId('test', dummyStore);
+    if (generatedRecordIds.has(id)) throw new Error(`Collision detected in generateUniqueRecordId: ${id}`);
+    generatedRecordIds.add(id);
+    dummyStore.push({ id });
+  }
+  console.log(`  ✓ 100 unique record IDs generated rapidly with 0 collisions.`);
+
   console.log('\n======================================================');
-  console.log('ALL 7 PRODUCTION WORKFLOW TESTS COMPLETED SUCCESSFULLY!');
+  console.log('ALL TESTS COMPLETED SUCCESSFULLY WITH RELATIONAL INTEGRITY!');
   console.log('======================================================\n');
 }
 

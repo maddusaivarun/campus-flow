@@ -423,7 +423,22 @@ if (typeof window !== 'undefined') {
       const eventId = pathname.split('/')[3];
       const events = getStoredEvents();
       const target = events.find((e) => e.id === eventId);
-      const regId = `VUG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      if (!target) {
+        return jsonRes({ error: 'Event not found.' }, 404);
+      }
+
+      if (target.status !== 'PUBLISHED' && target.status !== 'REGISTRATION_OPEN') {
+        return jsonRes(
+          { error: 'Registration unavailable: Event is not published or open for registration.' },
+          400
+        );
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (target.registrationDeadline && target.registrationDeadline < todayStr) {
+        return jsonRes({ error: 'Registration deadline for this activity has passed.' }, 400);
+      }
 
       // Use active user from localStorage if logged in
       let student = DEMO_USERS.student;
@@ -435,13 +450,43 @@ if (typeof window !== 'undefined') {
         }
       } catch {}
 
+      const regs = getStoredRegistrations();
+
+      // Relational check: uniqueness constraint on (event_id, student_id)
+      const alreadyRegistered = regs.some(
+        (r) =>
+          r.eventId === eventId &&
+          (r.studentId === student.id ||
+            r.studentEmail?.toLowerCase() === student.email?.toLowerCase() ||
+            r.studentRoll?.toLowerCase() === student.identifier?.toLowerCase()) &&
+          r.status === 'CONFIRMED'
+      );
+      if (alreadyRegistered) {
+        return jsonRes(
+          { error: 'You are already registered for this event. View your pass under "My Passes".' },
+          400
+        );
+      }
+
+      // Capacity validation
+      if (target.capacity && (target.registeredCount || 0) >= target.capacity) {
+        return jsonRes({ error: `Event is at maximum capacity (${target.capacity} seats).` }, 400);
+      }
+
+      const existingRegIds = new Set(regs.map((r) => r.registrationId));
+      const rollSuffix = (student.identifier || '001').slice(-3).toUpperCase();
+      let regId = `VUG-2026-${Math.floor(1000 + Math.random() * 9000)}-${rollSuffix}`;
+      while (existingRegIds.has(regId)) {
+        regId = `VUG-2026-${Math.floor(1000 + Math.random() * 9000)}-${rollSuffix}`;
+      }
+
       const newReg: RegistrationRecord = {
         id: `reg-${Date.now()}`,
         registrationId: regId,
         eventId,
-        eventTitle: target?.title || 'Department Workshop',
-        eventDate: target?.date || '2026-09-24',
-        eventVenue: target?.venue || 'Campus Auditorium',
+        eventTitle: target.title || 'Department Workshop',
+        eventDate: target.date || '2026-09-24',
+        eventVenue: target.venue || 'Campus Auditorium',
         studentId: student.id || 'user-student-01',
         studentName: student.name || 'Varun Maddu',
         studentRoll: student.identifier || '221FA04001',
@@ -455,19 +500,16 @@ if (typeof window !== 'undefined') {
         checkedInAt: (body.markAttendanceImmediately ?? true) ? new Date().toISOString() : undefined
       };
 
-      const regs = getStoredRegistrations();
       regs.unshift(newReg);
       saveStoredRegistrations(regs);
 
-      if (target) {
-        target.registeredCount = (target.registeredCount || 0) + 1;
-        if (body.markAttendanceImmediately ?? true) {
-          target.attendanceCount = (target.attendanceCount || 0) + 1;
-        }
-        saveStoredEvents(events);
+      target.registeredCount = regs.filter((r) => r.eventId === eventId && r.status === 'CONFIRMED').length;
+      if (body.markAttendanceImmediately ?? true) {
+        target.attendanceCount = regs.filter((r) => r.eventId === eventId && r.status === 'CONFIRMED' && r.checkedIn).length;
       }
+      saveStoredEvents(events);
 
-      return jsonRes({ success: true, registration: newReg });
+      return jsonRes({ success: true, registration: newReg, event: target });
     }
 
     // 14. Event attend
@@ -482,18 +524,43 @@ if (typeof window !== 'undefined') {
       return jsonRes({ success: true, message: 'Attendance confirmed present!' });
     }
 
-    // 15. Cancel registration
+    // 15. Cancel registration (strictly targets the active student's pass)
     if (pathname.includes('/cancel-registration') && method === 'POST') {
       const eventId = pathname.split('/')[3];
-      const regs = getStoredRegistrations().filter((r) => r.eventId !== eventId);
+      let student = DEMO_USERS.student;
+      try {
+        const saved = localStorage.getItem('campusflow_custom_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.name) student = parsed;
+        }
+      } catch {}
+
+      const regs = getStoredRegistrations();
+      const targetRegIndex = regs.findIndex(
+        (r) =>
+          r.eventId === eventId &&
+          (r.studentId === student.id ||
+            r.studentEmail?.toLowerCase() === student.email?.toLowerCase() ||
+            r.studentRoll?.toLowerCase() === student.identifier?.toLowerCase()) &&
+          r.status === 'CONFIRMED'
+      );
+
+      if (targetRegIndex === -1) {
+        return jsonRes({ error: 'Registration record not found.' }, 404);
+      }
+
+      regs[targetRegIndex].status = 'CANCELLED';
       saveStoredRegistrations(regs);
+
       const events = getStoredEvents();
       const target = events.find((e) => e.id === eventId);
       if (target) {
-        target.registeredCount = Math.max(0, (target.registeredCount || 0) - 1);
+        target.registeredCount = regs.filter((r) => r.eventId === eventId && r.status === 'CONFIRMED').length;
+        target.attendanceCount = regs.filter((r) => r.eventId === eventId && r.status === 'CONFIRMED' && r.checkedIn).length;
         saveStoredEvents(events);
       }
-      return jsonRes({ success: true });
+      return jsonRes({ success: true, message: 'Registration cancelled. Seat released.' });
     }
 
     // 16. Student registrations

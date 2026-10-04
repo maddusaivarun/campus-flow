@@ -171,11 +171,134 @@ function syncEventCounts() {
     const confirmedRegs = dbState.registrations.filter(
       (r) => r.eventId === evt.id && r.status === 'CONFIRMED'
     );
+    // If there are verified registrations, calculate strictly from registrations
     if (confirmedRegs.length > 0 || evt.registeredCount === undefined) {
       evt.registeredCount = Math.max(evt.registeredCount || 0, confirmedRegs.length);
     }
     evt.attendanceCount = confirmedRegs.filter((r) => r.checkedIn).length;
   }
+}
+
+/**
+ * Robustly sanitizes and heals database state:
+ * 1. Deduplicates events by ID, keeping the latest / published version.
+ * 2. Deduplicates student registrations by (eventId, studentId) and registrationId.
+ * 3. Deduplicates user accounts by normalized email.
+ * 4. Reconciles capacity, registered count, and attendance count for all events.
+ */
+function sanitizeAndHealDatabase(state: DatabaseSchema): boolean {
+  let modified = false;
+
+  // 1. Deduplicate events by id
+  if (Array.isArray(state.events)) {
+    const seenEventIds = new Map<string, DepartmentEvent>();
+    for (const evt of state.events) {
+      if (!evt || !evt.id) continue;
+      const existing = seenEventIds.get(evt.id);
+      if (!existing) {
+        seenEventIds.set(evt.id, evt);
+      } else {
+        modified = true;
+        // Keep the more progressed/published event, or the one with newer updatedAt
+        const isBetter =
+          (evt.status === 'PUBLISHED' && existing.status !== 'PUBLISHED') ||
+          (evt.updatedAt && (!existing.updatedAt || evt.updatedAt > existing.updatedAt));
+        if (isBetter) {
+          seenEventIds.set(evt.id, evt);
+        }
+      }
+    }
+    if (seenEventIds.size !== state.events.length) {
+      state.events = Array.from(seenEventIds.values());
+      modified = true;
+    }
+  }
+
+  // 2. Deduplicate registrations by (eventId, studentId) and registrationId
+  if (Array.isArray(state.registrations)) {
+    const seenKeyMap = new Map<string, RegistrationRecord>();
+    const seenRegIdSet = new Set<string>();
+
+    for (const reg of state.registrations) {
+      if (!reg || !reg.eventId) continue;
+      const key = `${reg.eventId}::${reg.studentId || reg.studentEmail || reg.studentRoll}`;
+      const existing = seenKeyMap.get(key);
+
+      if (!existing) {
+        seenKeyMap.set(key, reg);
+        if (reg.registrationId) seenRegIdSet.add(reg.registrationId);
+      } else {
+        modified = true;
+        // Prefer confirmed and checked-in over pending/cancelled
+        const isBetter =
+          (reg.status === 'CONFIRMED' && existing.status !== 'CONFIRMED') ||
+          (reg.checkedIn && !existing.checkedIn) ||
+          (reg.registeredAt && (!existing.registeredAt || reg.registeredAt > existing.registeredAt));
+        if (isBetter) {
+          seenKeyMap.set(key, reg);
+        }
+      }
+    }
+
+    if (seenKeyMap.size !== state.registrations.length) {
+      state.registrations = Array.from(seenKeyMap.values());
+      modified = true;
+    }
+  }
+
+  // 3. Deduplicate users by email
+  if (Array.isArray(state.users)) {
+    const userMap = new Map<string, UserAccount>();
+    for (const user of state.users) {
+      if (!user || !user.email) continue;
+      const normEmail = user.email.toLowerCase().trim();
+      if (!userMap.has(normEmail)) {
+        userMap.set(normEmail, user);
+      } else {
+        modified = true;
+      }
+    }
+    if (userMap.size !== state.users.length) {
+      state.users = Array.from(userMap.values());
+      modified = true;
+    }
+  }
+
+  return modified;
+}
+
+export function generateUniqueEventId(db: DatabaseSchema): string {
+  let id: string;
+  let attempts = 0;
+  do {
+    const entropy = crypto.randomBytes(3).toString('hex').toUpperCase();
+    id = `EVT-2026-${entropy}`;
+    attempts++;
+  } while (db.events.some((e) => e.id === id) && attempts < 100);
+  return id;
+}
+
+export function generateUniqueRegistrationId(db: DatabaseSchema, studentIdentifier?: string): string {
+  const rollSuffix = (studentIdentifier || '001').replace(/[^a-zA-Z0-9]/g, '').slice(-3).toUpperCase() || '001';
+  let regId: string;
+  let attempts = 0;
+  do {
+    const entropy = crypto.randomInt(1000, 10000);
+    regId = `VUG-2026-${entropy}-${rollSuffix}`;
+    attempts++;
+  } while (db.registrations.some((r) => r.registrationId === regId) && attempts < 100);
+  return regId;
+}
+
+export function generateUniqueRecordId(prefix: string, existingRecords?: Array<{ id: string }>): string {
+  let id: string;
+  let attempts = 0;
+  do {
+    const entropy = crypto.randomBytes(4).toString('hex');
+    id = `${prefix}-${Date.now()}-${entropy}`;
+    attempts++;
+  } while (existingRecords && existingRecords.some((r) => r.id === id) && attempts < 100);
+  return id;
 }
 
 function loadDatabase(): DatabaseSchema {
@@ -215,6 +338,11 @@ function loadDatabase(): DatabaseSchema {
       }
       if (!Array.isArray(dbState.feedbacks)) {
         dbState.feedbacks = JSON.parse(JSON.stringify(INITIAL_FEEDBACKS));
+        needsSave = true;
+      }
+
+      // Auto-heal corruptions, duplicate records, and orphaned entries
+      if (sanitizeAndHealDatabase(dbState)) {
         needsSave = true;
       }
 
@@ -260,7 +388,7 @@ function saveDatabase() {
   if (!dbState) return;
   ensureDataDirectory();
   try {
-    const tmpFile = `${DB_FILE}.${Date.now()}.${Math.random().toString(36).substring(2, 6)}.tmp`;
+    const tmpFile = `${DB_FILE}.${Date.now()}.${crypto.randomBytes(4).toString('hex')}.tmp`;
     fs.writeFileSync(tmpFile, JSON.stringify(dbState, null, 2), 'utf-8');
     fs.renameSync(tmpFile, DB_FILE);
   } catch (e) {
@@ -647,7 +775,9 @@ export function createEvent(
   }
 
   const db = loadDatabase();
-  const id = `EVT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  const id = data.id && !db.events.some((e) => e.id === data.id)
+    ? data.id
+    : generateUniqueEventId(db);
   const now = new Date().toISOString();
   const status: EventStatus = submitImmediately ? 'PENDING_REVIEW' : 'DRAFT';
 
@@ -677,6 +807,7 @@ export function createEvent(
     locationDetails: data.locationDetails || 'Turing Hall, Gate 1 & 2 Main Lab Complex',
     capacity: Number(data.capacity) || 120,
     registeredCount: 0,
+    attendanceCount: 0,
     registrationDeadline: data.registrationDeadline || data.date,
     registrationRequired: true,
     targetAudience: data.targetAudience || 'All B.Tech / M.Tech Students',
@@ -715,7 +846,7 @@ export function createEvent(
 
   // Record audit log
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: id,
     action: submitImmediately ? 'EVENT_SUBMITTED_FOR_REVIEW' : 'EVENT_DRAFT_CREATED',
     actorName: organizer.name,
@@ -729,7 +860,7 @@ export function createEvent(
   // Approvals timeline record
   if (submitImmediately) {
     db.approvals.unshift({
-      id: `appr-${Date.now()}`,
+      id: generateUniqueRecordId('appr', db.approvals),
       eventId: id,
       actorId: organizer.id,
       actorName: organizer.name,
@@ -741,7 +872,7 @@ export function createEvent(
 
     // Notify HOD
     db.notifications.unshift({
-      id: `notif-${Date.now()}`,
+      id: generateUniqueRecordId('notif', db.notifications),
       userId: 'user-hod-01',
       role: 'HOD',
       title: 'New Activity Charter Submitted for Review',
@@ -796,7 +927,7 @@ export function updateEvent(
   db.events[index] = updated;
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: id,
     action: 'EVENT_UPDATED',
     actorName: actor.name,
@@ -839,7 +970,7 @@ export function deleteEvent(id: string, actor: UserProfile): void {
   }
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: id,
     action: 'EVENT_DELETED',
     actorName: actor.name,
@@ -879,7 +1010,7 @@ export function submitEventForApproval(
 
   // Add approval record
   db.approvals.unshift({
-    id: `appr-${Date.now()}`,
+    id: generateUniqueRecordId('appr', db.approvals),
     eventId: id,
     actorId: actor.id,
     actorName: actor.name,
@@ -891,7 +1022,7 @@ export function submitEventForApproval(
 
   // Add audit log
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: id,
     action: 'SUBMITTED_FOR_REVIEW',
     actorName: actor.name,
@@ -902,7 +1033,7 @@ export function submitEventForApproval(
 
   // Notify HOD
   db.notifications.unshift({
-    id: `notif-${Date.now()}`,
+    id: generateUniqueRecordId('notif', db.notifications),
     userId: 'user-hod-01',
     role: 'HOD',
     title: 'Charter Awaiting Statutory Review',
@@ -958,7 +1089,7 @@ export function reviewEvent(
 
     // Timeline record
     db.approvals.unshift({
-      id: `appr-${Date.now()}`,
+      id: generateUniqueRecordId('appr', db.approvals),
       eventId: id,
       actorId: reviewer.id,
       actorName: reviewer.name,
@@ -971,7 +1102,7 @@ export function reviewEvent(
 
     // Audit log
     db.auditLogs.unshift({
-      id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      id: generateUniqueRecordId('audit', db.auditLogs),
       eventId: id,
       action: 'APPROVED_AND_PUBLISHED',
       actorName: reviewer.name,
@@ -982,7 +1113,7 @@ export function reviewEvent(
 
     // Notify Organizer
     db.notifications.unshift({
-      id: `notif-${Date.now()}`,
+      id: generateUniqueRecordId('notif', db.notifications),
       userId: evt.organizerId,
       role: 'FACULTY',
       title: 'Charter Approved & Published!',
@@ -1001,7 +1132,7 @@ export function reviewEvent(
     evt.hodReviewComment = comment.trim();
 
     db.approvals.unshift({
-      id: `appr-${Date.now()}`,
+      id: generateUniqueRecordId('appr', db.approvals),
       eventId: id,
       actorId: reviewer.id,
       actorName: reviewer.name,
@@ -1012,7 +1143,7 @@ export function reviewEvent(
     });
 
     db.auditLogs.unshift({
-      id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      id: generateUniqueRecordId('audit', db.auditLogs),
       eventId: id,
       action: 'CHANGES_REQUESTED',
       actorName: reviewer.name,
@@ -1022,7 +1153,7 @@ export function reviewEvent(
     });
 
     db.notifications.unshift({
-      id: `notif-${Date.now()}`,
+      id: generateUniqueRecordId('notif', db.notifications),
       userId: evt.organizerId,
       role: 'FACULTY',
       title: 'Revisions Requested by HOD',
@@ -1042,7 +1173,7 @@ export function reviewEvent(
     evt.hodReviewComment = formalReason;
 
     db.approvals.unshift({
-      id: `appr-${Date.now()}`,
+      id: generateUniqueRecordId('appr', db.approvals),
       eventId: id,
       actorId: reviewer.id,
       actorName: reviewer.name,
@@ -1053,7 +1184,7 @@ export function reviewEvent(
     });
 
     db.auditLogs.unshift({
-      id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      id: generateUniqueRecordId('audit', db.auditLogs),
       eventId: id,
       action: 'EVENT_REJECTED',
       actorName: reviewer.name,
@@ -1063,7 +1194,7 @@ export function reviewEvent(
     });
 
     db.notifications.unshift({
-      id: `notif-${Date.now()}`,
+      id: generateUniqueRecordId('notif', db.notifications),
       userId: evt.organizerId,
       role: 'FACULTY',
       title: 'Event Proposal Rejected',
@@ -1127,7 +1258,7 @@ export function bulkReviewEvents(
       evt.digitalSignatureHash = hash;
 
       db.approvals.unshift({
-        id: `appr-${Date.now()}-${counter}-${Math.floor(Math.random() * 1000)}`,
+        id: generateUniqueRecordId('appr', db.approvals),
         eventId: id,
         actorId: reviewer.id,
         actorName: reviewer.name,
@@ -1139,7 +1270,7 @@ export function bulkReviewEvents(
       });
 
       db.auditLogs.unshift({
-        id: `audit-${Date.now()}-${counter}-${Math.floor(Math.random() * 1000)}`,
+        id: generateUniqueRecordId('audit', db.auditLogs),
         eventId: id,
         action: 'APPROVED_AND_PUBLISHED',
         actorName: reviewer.name,
@@ -1149,7 +1280,7 @@ export function bulkReviewEvents(
       });
 
       db.notifications.unshift({
-        id: `notif-${Date.now()}-${counter}`,
+        id: generateUniqueRecordId('notif', db.notifications),
         userId: evt.organizerId,
         role: 'FACULTY',
         title: 'Charter Approved & Published!',
@@ -1165,7 +1296,7 @@ export function bulkReviewEvents(
       evt.hodReviewComment = formalReason;
 
       db.approvals.unshift({
-        id: `appr-${Date.now()}-${counter}-${Math.floor(Math.random() * 1000)}`,
+        id: generateUniqueRecordId('appr', db.approvals),
         eventId: id,
         actorId: reviewer.id,
         actorName: reviewer.name,
@@ -1176,7 +1307,7 @@ export function bulkReviewEvents(
       });
 
       db.auditLogs.unshift({
-        id: `audit-${Date.now()}-${counter}-${Math.floor(Math.random() * 1000)}`,
+        id: generateUniqueRecordId('audit', db.auditLogs),
         eventId: id,
         action: 'EVENT_REJECTED',
         actorName: reviewer.name,
@@ -1186,7 +1317,7 @@ export function bulkReviewEvents(
       });
 
       db.notifications.unshift({
-        id: `notif-${Date.now()}-${counter}`,
+        id: generateUniqueRecordId('notif', db.notifications),
         userId: evt.organizerId,
         role: 'FACULTY',
         title: 'Event Proposal Rejected',
@@ -1218,7 +1349,7 @@ export function completeEvent(id: string, actor: UserProfile): DepartmentEvent {
   evt.updatedAt = new Date().toISOString();
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: id,
     action: 'EVENT_COMPLETED',
     actorName: actor.name,
@@ -1268,20 +1399,25 @@ export function registerStudent(
     throw new Error(`Event is at maximum capacity (${evt.capacity} seats).`);
   }
 
-  // Check 4: UNIQUE (event_id, student_id) constraint
+  // Check 4: UNIQUE (event_id, student_id) relational constraint
   const alreadyRegistered = db.registrations.some(
-    (r) => r.eventId === eventId && r.studentId === student.id && r.status === 'CONFIRMED'
+    (r) =>
+      r.eventId === eventId &&
+      (r.studentId === student.id ||
+        (student.email && r.studentEmail && r.studentEmail.toLowerCase() === student.email.toLowerCase()) ||
+        (student.identifier && r.studentRoll && r.studentRoll.toLowerCase() === student.identifier.toLowerCase())) &&
+      r.status === 'CONFIRMED'
   );
   if (alreadyRegistered) {
     throw new Error('You are already registered for this event. View your pass under "My Passes".');
   }
 
   const now = new Date().toISOString();
-  const registrationId = `VUG-2026-${Math.floor(1000 + Math.random() * 9000)}-${student.identifier.slice(-3).toUpperCase()}`;
+  const registrationId = generateUniqueRegistrationId(db, student.identifier);
   const shouldCheckInNow = Boolean(extraDetails?.markAttendanceImmediately);
 
   const newRegistration: RegistrationRecord = {
-    id: `reg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('reg', db.registrations),
     eventId: evt.id,
     eventTitle: evt.title,
     eventDate: evt.date,
@@ -1302,7 +1438,9 @@ export function registerStudent(
   };
 
   db.registrations.unshift(newRegistration);
-  evt.registeredCount += 1;
+  evt.registeredCount = db.registrations.filter(
+    (r) => r.eventId === evt.id && r.status === 'CONFIRMED'
+  ).length;
   evt.attendanceCount = db.registrations.filter(
     (r) => r.eventId === evt.id && r.status === 'CONFIRMED' && r.checkedIn
   ).length;
@@ -1310,7 +1448,7 @@ export function registerStudent(
 
   // Record audit log
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: evt.id,
     action: shouldCheckInNow ? 'STUDENT_REGISTERED_AND_ATTENDED' : 'STUDENT_REGISTERED',
     actorName: student.name,
@@ -1323,7 +1461,7 @@ export function registerStudent(
 
   // Notify student
   db.notifications.unshift({
-    id: `notif-${Date.now()}`,
+    id: generateUniqueRecordId('notif', db.notifications),
     userId: student.id,
     role: 'STUDENT',
     title: shouldCheckInNow ? 'Registration & Attendance Recorded!' : 'Registration Confirmed!',
@@ -1366,7 +1504,7 @@ export function recordStudentAttendance(
   evt.updatedAt = now;
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: evt.id,
     action: 'REALTIME_ATTENDANCE_RECORDED',
     actorName: student.name,
@@ -1376,7 +1514,7 @@ export function recordStudentAttendance(
   });
 
   db.notifications.unshift({
-    id: `notif-${Date.now()}`,
+    id: generateUniqueRecordId('notif', db.notifications),
     userId: student.id,
     role: 'STUDENT',
     title: 'Attendance Confirmed Present!',
@@ -1425,7 +1563,7 @@ export function cancelRegistration(
   evt.updatedAt = now;
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: evt.id,
     action: 'STUDENT_REGISTRATION_CANCELLED',
     actorName: student.name,
@@ -1545,7 +1683,7 @@ export function checkInParticipant(
   }
 
   db.auditLogs.unshift({
-    id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    id: generateUniqueRecordId('audit', db.auditLogs),
     eventId: reg.eventId,
     action: 'GATE_CHECK_IN',
     actorName: actor.name,
@@ -1653,7 +1791,7 @@ export function submitFeedback(
     db.feedbacks[existingIndex] = record;
   } else {
     record = {
-      id: `fb-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUniqueRecordId('fb', db.feedbacks),
       eventId,
       eventTitle: event.title,
       studentId: student.id,
@@ -1674,7 +1812,7 @@ export function submitFeedback(
 
   // Notify event organizer (FACULTY)
   db.notifications.unshift({
-    id: `notif-${Date.now()}`,
+    id: generateUniqueRecordId('notif', db.notifications),
     userId: event.organizerId,
     role: 'FACULTY',
     title: 'New Student Rating & Feedback',
@@ -1687,7 +1825,7 @@ export function submitFeedback(
 
   // Audit log
   db.auditLogs.unshift({
-    id: `aud-${Date.now()}`,
+    id: generateUniqueRecordId('aud', db.auditLogs),
     eventId,
     action: 'FEEDBACK_SUBMITTED',
     actorName: student.name,
